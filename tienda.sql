@@ -4,7 +4,7 @@
 -- Motor: MariaDB (incluido en LAMPP)
 --
 -- Crea la base de datos, la tabla "Productos" con los campos
--- exigidos e inserta 15 productos de prueba (mínimo pedido: 10).
+-- exigidos e inserta 15 productos de prueba.
 --
 -- Política de precios (solo 2 valores):
 --   ₡ 8,500.00 -> camisetas de tonos claros: Gris Claro, Grafito y Salmón
