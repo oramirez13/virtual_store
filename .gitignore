@@ -9,3 +9,8 @@ Thumbs.db
 # Ignora respaldos temporales
 *.bak
 *~
+
+# Materiales de entrega locales (no publicar)
+STEP-BY-STEP.md
+osvaldo_ramirez_tarea_1/
+*.zip

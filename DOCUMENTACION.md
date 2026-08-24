@@ -1,6 +1,5 @@
 # DOCUMENTACIÓN TÉCNICA - Tienda Virtual de Camisetas UNIX
 
-Tarea 1 | Semana 2 | Desarrollo Web Avanzado
 Módulo: Almacenamiento de datos
 
 ---
@@ -8,7 +7,7 @@ Módulo: Almacenamiento de datos
 ## 1. Descripción general
 
 Aplicación web que muestra un catálogo de 15 camisetas almacenadas en una base
-de datos MySQL/MariaDB (la tarea exige un mínimo de 10). El usuario visualiza
+de datos MySQL/MariaDB. El usuario visualiza
 los productos en una galería de tarjetas y puede hacer clic sobre cualquier
 imagen para ampliarla en una ventana emergente (modal) con botón de cerrado.
 
@@ -88,8 +87,8 @@ tela 100% algodón; las descripciones lo reflejan.
 
 ## 4. Descripción archivo por archivo
 
-El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli,
-según el material del curso (PDFs 06 y 07): instancia de `mysqli`, validación
+El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli:
+instancia de `mysqli`, validación
 con `connect_error`, consultas con `query()` y lectura con `fetch_assoc()`.
 
 ### conexion.php
@@ -100,7 +99,7 @@ fallo y se detiene la ejecución mostrando el motivo.
 ### productos.php
 Ejecuta `SELECT * FROM Productos` con `$conexion->query()` (retorna un objeto
 mysqli_result). Valida con `$conexion->error != ''`. Recorre el resultado con
-el patrón del curso: `$resultado->fetch_assoc()` dentro de un `while` que
+el patrón estándar: `$resultado->fetch_assoc()` dentro de un `while` que
 termina cuando retorna null, acumulando cada fila en `$productos`. Cierra con
 `$conexion->close()`.
 

@@ -1,4 +1,4 @@
-# Tienda Virtual de Camisetas UNIX - Tarea 1 (Semana 2)
+# Tienda Virtual de Camisetas UNIX
 
 Galería web de productos que muestra camisetas almacenadas en una base de datos MySQL/MariaDB, desarrollada con PHP y Bootstrap.
 
@@ -64,17 +64,9 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 | Contraseña | (vacía)  |
 | Base      | Tienda   |
 
-## Entregables (ZIP de la tarea)
-
-El ZIP debe contener:
-
-1. `tienda.sql` - código de creación de la tabla "Productos" con sus campos e inserciones
-2. `conexion.php` + `productos.php` - código PHP de conexión y consulta
-3. `index.php` - código HTML/PHP de visualización de productos
-
 ## Funcionalidades
 
-- Galería responsiva de 15 camisetas leídas desde MariaDB (la tarea pide mínimo 10; se muestran todas las disponibles).
+- Galería responsiva de 15 camisetas leídas desde MariaDB.
 - Clic sobre cualquier imagen: modal de Bootstrap con la foto ampliada, nombre del producto como título y botón X de cerrado (también cierra con Esc o clic fuera).
 - Botón flotante "volver arriba" con desplazamiento suave (esquina inferior derecha).
 - Formato monetario del precio en colones.
@@ -84,4 +76,4 @@ El ZIP debe contener:
 - `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
 - Verificación de errores de conexión (`connect_error`) y de consulta (`error`).
 - La conexión se cierra con `$conexion->close()` al terminar su uso.
-- Estilo orientado a objetos mysqli, según el material del curso.
+- Estilo orientado a objetos mysqli.

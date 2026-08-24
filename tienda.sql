@@ -1,10 +1,10 @@
 -- =============================================================
--- TAREA 1 - Semana 2 - Desarrollo Web PHP Avanzado
+-- Tienda Virtual de Camisetas UNIX
 -- Script SQL de la base de datos "Tienda"
 -- Motor: MariaDB (incluido en LAMPP)
 --
--- Crea la base de datos, la tabla "Productos" con los campos
--- exigidos e inserta 15 productos de prueba.
+-- Crea la base de datos, la tabla "Productos" con sus campos
+-- e inserta 15 productos de prueba.
 --
 -- Política de precios (solo 2 valores):
 --   ₡ 8,500.00 -> camisetas de tonos claros: Gris Claro, Grafito y Salmón
@@ -23,7 +23,7 @@ USE Tienda;
 -- Elimina la tabla si existiera (permite re-ejecutar el script)
 DROP TABLE IF EXISTS Productos;
 
--- Creación de la tabla "Productos" con los campos indicados en la tarea
+-- Creación de la tabla "Productos"
 CREATE TABLE Productos (
     codigo INT PRIMARY KEY,          -- Código único del producto (identificador)
     nombre VARCHAR(100),             -- Nombre comercial del producto
