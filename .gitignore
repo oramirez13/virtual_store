@@ -1,0 +1,11 @@
+# Ignora archivos de configuracion local del editor
+.vscode/
+.idea/
+
+# Ignora archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Ignora respaldos temporales
+*.bak
+*~

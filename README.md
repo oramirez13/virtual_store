@@ -1,0 +1,87 @@
+# Tienda Virtual de Camisetas UNIX - Tarea 1 (Semana 2)
+
+Galería web de productos que muestra camisetas almacenadas en una base de datos MySQL/MariaDB, desarrollada con PHP y Bootstrap.
+
+## Descripción
+
+Cada producto está conformado por: **código**, **nombre**, **detalle**, **imagen** (URL) y **precio**. El sitio consulta los productos desde la tabla `Productos` de la base `Tienda` y los presenta al usuario en una cuadrícula de tarjetas.
+
+## Tecnologías
+
+- PHP 8 (extensión mysqli)
+- MySQL/MariaDB (servidor LAMPP)
+- HTML5 + Bootstrap 5.3.8 (plantilla base skeletor.html)
+- JavaScript (modal de imagen ampliada)
+
+## Estructura del proyecto
+
+```
+tienda_virtual/
+├── conexion.php        # Conexión a la base de datos MySQL/MariaDB
+├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
+├── index.php           # Galería de productos (HTML/PHP) + modal de imagen ampliada
+├── tienda.sql          # Script SQL: creación de tabla + 15 productos de prueba
+├── README.md           # Este archivo
+├── DOCUMENTACION.md    # Documentación técnica (arquitectura, flujo de datos, seguridad)
+├── STEP-BY-STEP.md     # Guía paso a paso de instalación y entrega
+├── css/
+│   └── style.css       # Estilos propios complementarios a Bootstrap
+├── js/
+│   └── script.js       # JavaScript: apertura del modal al hacer clic en una imagen
+└── img/                # Imágenes locales de los productos
+    ├── camiseta_01.jpg
+    ├── ...
+    └── camiseta_15.jpg
+```
+
+## Requisitos previos
+
+- LAMPP/XAMPP instalado en `/opt/lampp`
+- Apache y MariaDB funcionando
+
+## Instalación y ejecución
+
+```bash
+# 1. Iniciar los servicios de LAMPP
+sudo /opt/lampp/lampp start
+
+# 2. Importar el script de base de datos (crea BD Tienda, tabla Productos y datos;
+#    --default-character-set conserva las tildes del contenido)
+/opt/lampp/bin/mysql -u root --default-character-set=utf8mb4 < tienda.sql
+
+# 3. Publicar el proyecto en la raíz web de LAMPP (enlace simbólico)
+sudo ln -s /home/orami/u_fidelitas/desarrollo_web/php_avanzado/semana_2/tienda_virtual /opt/lampp/htdocs/tienda_virtual
+```
+
+Abrir en el navegador: <http://localhost/tienda_virtual/>
+
+## Credenciales de base de datos (LAMPP por defecto)
+
+| Parámetro | Valor    |
+|-----------|----------|
+| Host      | localhost|
+| Usuario   | root     |
+| Contraseña | (vacía)  |
+| Base      | Tienda   |
+
+## Entregables (ZIP de la tarea)
+
+El ZIP debe contener:
+
+1. `tienda.sql` - código de creación de la tabla "Productos" con sus campos e inserciones
+2. `conexion.php` + `productos.php` - código PHP de conexión y consulta
+3. `index.php` - código HTML/PHP de visualización de productos
+
+## Funcionalidades
+
+- Galería responsiva de 15 camisetas leídas desde MariaDB (la tarea pide mínimo 10; se muestran todas las disponibles).
+- Clic sobre cualquier imagen: modal de Bootstrap con la foto ampliada, nombre del producto como título y botón X de cerrado (también cierra con Esc o clic fuera).
+- Botón flotante "volver arriba" con desplazamiento suave (esquina inferior derecha).
+- Formato monetario del precio en colones.
+
+## Notas de seguridad aplicadas
+
+- `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
+- Verificación de errores de conexión (`connect_error`) y de consulta (`error`).
+- La conexión se cierra con `$conexion->close()` al terminar su uso.
+- Estilo orientado a objetos mysqli, según el material del curso.

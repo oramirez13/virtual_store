@@ -1,0 +1,31 @@
+/* ============================================================
+   style.css - Estilos de la Tienda Virtual
+   Complemento de Bootstrap 5.
+   ============================================================ */
+
+/* Altura uniforme para las fotos: evita que la grilla se deforme */
+.img-producto {
+    height: 260px;     /* Todas las fotos miden lo mismo de alto */
+    object-fit: cover; /* Recorte centrado sin deformar la imagen */
+    cursor: pointer;   /* Al pasar el mouse: invita a hacer clic */
+}
+
+/* Efecto hover de las tarjetas */
+.card:hover {
+    transform: translateY(-5px);                /* La tarjeta sube 5 píxeles */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra más marcada */
+    transition: all 0.25s ease-in-out;          /* Cambio suave */
+}
+
+/* Animación del botón "volver arriba" */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Botón volver arriba usando Bootstrap */
+.btn-volver-arriba {
+    width: 48px;           /* Ancho fijo */
+    height: 48px;          /* Igual al ancho: círculo perfecto */
+    border-radius: 50%;    /* Bordes totalmente redondeados */
+    font-size: 1.3rem;     /* Flecha más grande que el texto normal */
+}
