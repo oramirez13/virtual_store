@@ -1,14 +1,10 @@
 <?php
 // conexion.php: instancia el objeto mysqli y valida la conexión.
 
-// Servidor donde corre MariaDB (misma máquina con LAMPP)
-$host = "localhost";
-// Usuario de la base de datos
-$usuario = "root";
-// Contraseña del usuario (vacía por defecto en LAMPP)
-$contrasena = "";
-// Base de datos a utilizar
-$basedatos = "Tienda";
+// require 'config.php': carga las credenciales desde el archivo de
+// configuración aparte (host, usuario, contraseña y base de datos).
+// Así el código de conexión no mezcla datos de configuración con lógica.
+require 'config.php';
 
 // new mysqli(): crea la conexión; recibe host, usuario, contraseña y BD
 $conexion = new mysqli($host, $usuario, $contrasena, $basedatos);

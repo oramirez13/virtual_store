@@ -35,9 +35,9 @@ index.php  (presentación)
         v
 productos.php  (lógica de consulta)
         |
-        | include 'conexion.php'
+        | include 'conexion.php'  ->  conexion.php hace require 'config.php'
         v
-conexion.php  (credenciales y apertura de conexión mysqli)
+config.php  (credenciales usuario)  y  conexion.php  (abre la conexión mysqli)
         |
         | new mysqli()
         v
@@ -65,6 +65,7 @@ cerrar.php  setcookie(expira) + session_destroy()  (sesión completa)
 ```
 
 Separación de responsabilidades:
+- config.php: SOLO las credenciales de la base de datos (host, usuario, contraseña, BD).
 - conexion.php: SOLO abre (y valida) la conexión.
 - productos.php: SOLO consulta y organiza los datos en el arreglo $productos.
 - index.php: SOLO presentación (HTML). No conoce credenciales ni SQL.
@@ -105,10 +106,17 @@ El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli:
 instancia de `mysqli`, validación
 con `connect_error`, consultas con `query()` y lectura con `fetch_assoc()`.
 
+### config.php
+Archivo de configuración separado con las 4 credenciales ($host, $usuario,
+$contrasena, $basedatos). No contiene lógica: su único propósito es que la
+información de conexión no quede mezclada con el código (recomendación del
+profesor). Se carga desde conexion.php con `require`.
+
 ### conexion.php
-Define las 4 credenciales y crea la conexión con `new mysqli(host, usuario,
-contrasena, BD)`. Valida con `$conexion->connect_error`: si no es null hubo
-fallo y se detiene la ejecución mostrando el motivo.
+Carga las credenciales con `require 'config.php'` y crea la conexión con
+`new mysqli(host, usuario, contrasena, BD)`. Valida con
+`$conexion->connect_error`: si no es null hubo fallo y se detiene la ejecución
+mostrando el motivo.
 
 ### productos.php
 Ejecuta `SELECT * FROM Productos` con `$conexion->query()` (retorna un objeto
@@ -135,14 +143,19 @@ ya agregadas; `array_sum()` obtiene el total de ítems para el contador
 ### agregar.php
 Página receptora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero
 con `(int)` (un dato malicioso quedaría en 0 y se rechaza), verifica en la BD que
-el producto exista y solo entonces agrega el código al arreglo y lo guarda en
+el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i",
+$codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL
+y no puede inyectarse código (recomendación del profesor para consultas con
+entrada del usuario). Solo entonces agrega el código al arreglo y lo guarda en
 `$_SESSION['carrito']`. Muestra una confirmación con el nombre agregado y el
 total acumulado.
 
 ### carrito.php
-Reconstruye los ítems consultando la BD por cada código guardado y acumula el
-precio en `$total`. Presenta la tabla con miniaturas, el total en `tfoot` y el
-botón "Vaciar carrito" (formulario POST). Si no hay ítems muestra un aviso.
+Reconstruye los ítems consultando la BD por cada código guardado con el mismo
+patrón de **prepared statement** (los códigos provienen de la sesión) y acumula el
+precio en `$total`. Si falla la preparación de alguna consulta, muestra un aviso y
+sale del bucle. Presenta la tabla con miniaturas, el total en `tfoot` y el botón
+"Vaciar carrito" (formulario POST). Si no hay ítems muestra un aviso.
 
 ### vaciar.php
 Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal
@@ -178,6 +191,8 @@ Interactividad del modal:
 | Medida | Dónde | Riesgo que mitiga |
 |--------|-------|-------------------|
 | `htmlspecialchars()` en todo dato impreso | index.php | XSS (inyección de HTML/JS desde datos de la BD) |
+| Credenciales en config.php | conexion.php | Credenciales expuestas en el código fuente |
+| Prepared statements (prepare + bind_param) | agregar.php, carrito.php | Inyección SQL en consultas con datos del usuario/sesión |
 | Validación de conexión antes de usarla | conexion.php | Páginas rotas / fugas de información |
 | Validación del resultado de la consulta | productos.php | Errores silenciosos de SQL |
 | Cierre explícito de la conexión | productos.php | Agotamiento de recursos del servidor |

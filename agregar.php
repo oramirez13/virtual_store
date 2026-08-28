@@ -29,12 +29,36 @@ if(isset($_POST['codigo'])){
 
     if($codigo > 0){
 
-        // Conecta y busca el producto para validar que exista
+        // Conecta y busca el producto para validar que exista;
+        // conexion.php a su vez carga las credenciales desde config.php
         include 'conexion.php';
-        $resultado = $conexion->query("SELECT nombre FROM Productos WHERE codigo = $codigo");
 
-        if($resultado != false){
+        // Prepared statement: la consulta se prepara con un marcador (?) y el
+        // valor se envía POR SEPARADO al momento de ejecutarla. Asi lo
+        // recomienda el profesor cuando la consulta recibe datos del usuario:
+        // si alguien intentara inyectar SQL, ese texto se trataría como un
+        // simple valor y nunca como parte de la instrucción SQL.
+        $consulta = $conexion->prepare("SELECT nombre FROM Productos WHERE codigo = ?");
+
+        // Buena práctica: comprobar que la preparación de la consulta funcionó
+        if($consulta == false){
+            $mensaje = "Error en la consulta: {$conexion->error}";
+        }else{
+            // bind_param("i", $codigo): sustituye el (?) por el valor.
+            // La "i" le dice a MySQL que el dato es un entero (integer).
+            $consulta->bind_param("i", $codigo);
+
+            // execute(): ejecuta la consulta ya preparada
+            $consulta->execute();
+
+            // get_result(): obtiene el resultado como objeto mysqli_result
+            $resultado = $consulta->get_result();
+
+            // fetch_assoc(): lee la primera fila (o null si no existe)
             $fila = $resultado->fetch_assoc();
+
+            // Libera la consulta preparada; la conexión se cierra al final
+            $consulta->close();
 
             if($fila != null){
                 // El producto existe: se agrega al arreglo del carrito.
@@ -52,8 +76,6 @@ if(isset($_POST['codigo'])){
             }else{
                 $mensaje = "El producto solicitado no existe.";
             }
-        }else{
-            $mensaje = "Error en la consulta: {$conexion->error}";
         }
 
         // Cierra la conexión cuando ya no se necesita

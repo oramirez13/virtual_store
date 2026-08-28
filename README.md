@@ -7,7 +7,7 @@ Su funcionamiento se apoya en dos pilares:
 - **Catálogo dinámico**: los productos (15 camisetas) se consultan desde la base de datos en MariaDB y se presentan en una galería de tarjetas.
 - **Carrito de compras**: persistido mediante **sesiones de PHP** (`$_SESSION`), permitiendo agregar productos, ver el carrito, vaciarlo y cerrar sesión.
 
-Aplica prácticas básicas de seguridad como **sanitización de salida** (escape de datos con `htmlspecialchars()` contra XSS) y **validación de entradas** (casts y comprobaciones antes de usar datos llegados del usuario).
+Aplica prácticas básicas de seguridad como **sanitización de salida** (escape de datos con `htmlspecialchars()` contra XSS), **consultas preparadas** (prepared statements) en las consultas que reciben datos del usuario, y **validación de entradas** (casts y comprobaciones antes de usar datos llegados del usuario). Las credenciales de la base de datos viven en un archivo de configuración aparte (`config.php`).
 
 ## Funcionalidades
 
@@ -33,7 +33,8 @@ Aplica prácticas básicas de seguridad como **sanitización de salida** (escape
 
 ```
 tienda_virtual/
-├── conexion.php        # Conexión a la base de datos MySQL/MariaDB
+├── config.php          # Credenciales de la BD (separadas del código de conexión)
+├── conexion.php        # Abre y valida la conexión a MySQL/MariaDB usando config.php
 ├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
 ├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
 ├── agregar.php         # Receptora POST: valida el código y lo guarda en la sesión
@@ -132,6 +133,8 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 - `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
 - Cast `(int)` del código recibido por POST antes de usarlo en una consulta.
+- Credenciales de la base de datos en `config.php`, fuera del código fuente (recomendación del profesor).
+- Consultas preparadas (`prepare()` + `bind_param()`) en `agregar.php` y `carrito.php`: el valor viaja separado del SQL (previene inyección SQL).
 - `isset()` defensivo antes de leer `$_SESSION['carrito']`.
 - Verificación de errores de conexión (`connect_error`) y de consulta (`error`).
 - Las acciones que modifican datos (agregar, vaciar) se envían por POST.

@@ -46,6 +46,11 @@ DESCRIBE Productos;       -- Muestra los 5 campos y sus tipos
 SELECT * FROM Productos;  -- Debe mostrar las 15 camisetas del catálogo
 ```
 
+> **Nota sobre las credenciales:** los datos de conexión (host, usuario,
+> contraseña y base) viven en `config.php`, separados del código según la
+> recomendación del profesor. Si tu LAMPP usa una contraseña de root distinta,
+> edítala en ese archivo antes de continuar.
+
 ## Paso 3: Publicar el proyecto en LAMPP
 
 La raíz web de LAMPP es /opt/lampp/htdocs. Se publica con un enlace

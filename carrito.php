@@ -17,6 +17,8 @@ if(isset($_SESSION['carrito'])){
 $items = [];
 // Acumulador del total a pagar
 $total = 0;
+// Aviso que se muestra si falla la preparación de alguna consulta
+$advertencia = "";
 
 // Si hay productos en el carrito, consulta cada uno en la base de datos
 if(count($carrito) > 0){
@@ -27,16 +29,37 @@ if(count($carrito) > 0){
 
         // (int) refuerza que el código sea un entero antes de la consulta
         $codigo = (int)$codigo;
-        $resultado = $conexion->query("SELECT * FROM Productos WHERE codigo = $codigo");
 
-        if($resultado != false){
-            $fila = $resultado->fetch_assoc();
+        // Prepared statement: mismo patrón que agregar.php. La consulta lleva
+        // un marcador (?) y el valor se envía por separado, de modo que la
+        // base nunca lo interpreta como parte del SQL (evita inyección).
+        $consulta = $conexion->prepare("SELECT * FROM Productos WHERE codigo = ?");
 
-            // Si el producto existe se acumula en la lista y en el total
-            if($fila != null){
-                $items[] = $fila;
-                $total += $fila['precio'];
-            }
+        // Si falla la preparación se sale del bucle con un aviso
+        if($consulta == false){
+            $advertencia = "Error al consultar un producto del carrito.";
+            break;
+        }
+
+        // bind_param("i", $codigo): aquí la "i" indica un dato entero
+        $consulta->bind_param("i", $codigo);
+
+        // execute(): ejecuta la consulta ya preparada
+        $consulta->execute();
+
+        // get_result(): obtiene el resultado como objeto mysqli_result
+        $resultado = $consulta->get_result();
+
+        // fetch_assoc(): lee la primera fila (o null si no existe)
+        $fila = $resultado->fetch_assoc();
+
+        // Libera la consulta preparada; la conexión se cierra al final
+        $consulta->close();
+
+        // Si el producto existe se acumula en la lista y en el total
+        if($fila != null){
+            $items[] = $fila;
+            $total += $fila['precio'];
         }
     }
     $conexion->close();
@@ -65,6 +88,11 @@ if(count($carrito) > 0){
         <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 28px;" class="me-2">
         Carrito de Compras
       </h1>
+
+      <?php if($advertencia != ""){ ?>
+        <!-- Aviso de error si falló la preparación de alguna consulta -->
+        <div class="alert alert-danger"><?php echo $advertencia; ?></div>
+      <?php } ?>
 
       <?php if(count($items) == 0){ ?>
         <!-- Aviso cuando no hay productos en el carrito -->
