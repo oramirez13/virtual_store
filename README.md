@@ -89,38 +89,37 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ## Capturas de pantalla
 
-**Página principal de la tienda virtual de camisetas UNIX:**
+**carrito_01:** interfaz que muestra los productos agregados al carrito de compras, así como la cantidad de productos y las opciones "regresar a la galería" o "ver el carrito".
 
-![Página principal](screenshots/galeria_01.png)
+![carrito_01](screenshots/carrito_01.png)
 
-**Modal que amplía la imagen seleccionada de un producto:**
+**carrito_02:** muestra el contenido del carrito de compra.
 
-![Imagen ampliada de un producto](screenshots/galeria_05.png)
+![carrito_02](screenshots/carrito_02.png)
 
-**Galería con 3 productos agregados al carrito (insignias y contador):**
+**galeria_01:** página principal de la tienda virtual de camisetas UNIX.
 
-![Galería con productos en el carrito](screenshots/galeria_02.png)
+![galeria_01](screenshots/galeria_01.png)
 
-**Confirmación al agregar un producto: muestra la cantidad acumulada y las
-opciones "regresar a la galería" o "ver el carrito":**
+**galeria_02:** muestra la misma página principal, pero con el carrito de compras con 3 productos agregados.
 
-![Confirmación de producto agregado](screenshots/carrito_01.png)
+![galeria_02](screenshots/galeria_02.png)
 
-**Contenido del carrito de compras:**
+**galeria_03:** muestra el dashboard de phpMyAdmin con la lista de productos.
 
-![Contenido del carrito de compras](screenshots/carrito_02.png)
+![galeria_03](screenshots/galeria_03.png)
 
-**Aviso de sesión destruida con botón para regresar a la galería:**
+**galeria_04:** muestra el resultado de `SELECT * FROM Productos WHERE 1`.
 
-![Sesión destruida](screenshots/sesion_destruida_01.png)
+![galeria_04](screenshots/galeria_04.png)
 
-**phpMyAdmin con la lista de productos de la tabla `Productos`:**
+**galeria_05:** muestra el modal para agrandar la imagen seleccionada de un producto.
 
-![phpMyAdmin - lista de productos](screenshots/galeria_03.png)
+![galeria_05](screenshots/galeria_05.png)
 
-**Resultado de la consulta `SELECT * FROM Productos WHERE 1`:**
+**sesion_destruida_01:** muestra el aviso de sesión destruida y un botón para regresar a la galería.
 
-![phpMyAdmin - consulta SELECT](screenshots/galeria_04.png)
+![sesion_destruida_01](screenshots/sesion_destruida_01.png)
 
 ## Notas de seguridad aplicadas
 
