@@ -1,6 +1,6 @@
 # Tienda Virtual de Camisetas UNIX
 
-Tienda web que muestra 15 camisetas almacenadas en MariaDB e incluye un carrito de compras gestionado con sesiones de PHP (`$_SESSION`). Desarrollo con PHP y Bootstrap.
+Tienda web que muestra productos almacenados en MariaDB e incluye un carrito de compras gestionado con sesiones de PHP (`$_SESSION`). Desarrollo con PHP y Bootstrap.
 
 ## Funcionalidades
 
@@ -80,12 +80,12 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ## Credenciales de base de datos (LAMPP por defecto)
 
-| Parámetro | Valor    |
-|-----------|----------|
-| Host      | localhost|
-| Usuario   | root     |
-| Contraseña | (vacía)  |
-| Base      | Tienda   |
+| Parámetro  | Valor     |
+| ---------- | --------- |
+| Host       | localhost |
+| Usuario    | root      |
+| Contraseña | (vacía)   |
+| Base       | Tienda    |
 
 ## Capturas de pantalla
 
