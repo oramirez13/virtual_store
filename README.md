@@ -96,37 +96,37 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ## Capturas de pantalla
 
-**carrito_01:** interfaz que muestra los productos agregados al carrito de compras, así como la cantidad de productos y las opciones "regresar a la galería" o "ver el carrito".
-
-![carrito_01](screenshots/carrito_01.png)
-
-**carrito_02:** muestra el contenido del carrito de compra.
-
-![carrito_02](screenshots/carrito_02.png)
-
-**galeria_01:** página principal de la tienda virtual de camisetas UNIX.
+**Página principal de la tienda virtual de camisetas UNIX.**
 
 ![galeria_01](screenshots/galeria_01.png)
 
-**galeria_02:** muestra la misma página principal, pero con el carrito de compras con 3 productos agregados.
+**Muestra la misma página principal, pero con el carrito de compras con 3 productos agregados.**
 
 ![galeria_02](screenshots/galeria_02.png)
 
-**galeria_03:** muestra el dashboard de phpMyAdmin con la lista de productos.
-
-![galeria_03](screenshots/galeria_03.png)
-
-**galeria_04:** muestra el resultado de `SELECT * FROM Productos WHERE 1`.
-
-![galeria_04](screenshots/galeria_04.png)
-
-**galeria_05:** muestra el modal para agrandar la imagen seleccionada de un producto.
+**Muestra el modal para agrandar la imagen seleccionada de un producto.**
 
 ![galeria_05](screenshots/galeria_05.png)
 
-**sesion_destruida_01:** muestra el aviso de sesión destruida y un botón para regresar a la galería.
+**Interfaz que muestra los productos agregados al carrito de compras, así como la cantidad de productos y las opciones "regresar a la galería" o "ver el carrito".**
+
+![carrito_01](screenshots/carrito_01.png)
+
+**Muestra el contenido del carrito de compra.**
+
+![carrito_02](screenshots/carrito_02.png)
+
+**Muestra el aviso de sesión destruida y un botón para regresar a la galería.**
 
 ![sesion_destruida_01](screenshots/sesion_destruida_01.png)
+
+**Muestra el dashboard de phpMyAdmin con la lista de productos.**
+
+![galeria_03](screenshots/galeria_03.png)
+
+**Muestra el resultado de `SELECT * FROM Productos WHERE 1`.**
+
+![galeria_04](screenshots/galeria_04.png)
 
 ## Notas de seguridad aplicadas
 
