@@ -13,3 +13,6 @@ Thumbs.db
 # Materiales locales de entrega academica (no publicar)
 osvaldo_ramirez_tarea_1/
 *.zip
+
+# Enlace simbólico local de desarrollo (no es parte del proyecto)
+semana_3

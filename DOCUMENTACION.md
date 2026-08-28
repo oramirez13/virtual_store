@@ -7,9 +7,10 @@ Módulo: Almacenamiento de datos
 ## 1. Descripción general
 
 Aplicación web que muestra un catálogo de 15 camisetas almacenadas en una base
-de datos MySQL/MariaDB. El usuario visualiza
-los productos en una galería de tarjetas y puede hacer clic sobre cualquier
-imagen para ampliarla en una ventana emergente (modal) con botón de cerrado.
+de datos MySQL/MariaDB y un carrito de compras gestionado con sesiones de PHP.
+El usuario visualiza los productos en una galería de tarjetas, puede ampliar
+cualquier imagen con un clic (modal) y agregar productos al carrito, cuyo
+contenido vive en `$_SESSION`.
 
 | Capa      | Tecnología                        |
 |-----------|-----------------------------------|
@@ -48,6 +49,19 @@ index.php recorre $productos con foreach y genera las tarjetas HTML
         |
         v
 Navegador renderiza la galería; script.js activa el modal al hacer clic
+```
+
+Flujo del carrito (sesiones de PHP):
+
+```
+Galería (index.php) --POST codigo--> agregar.php
+    |  valida (int) el código y consulta la BD
+    v
+$_SESSION['carrito']  (arreglo de códigos, ej. [1, 4, 4])
+    |  -> carrito.php consulta la BD por cada código y suma el total
+    |  -> vaciar.php   unset($_SESSION['carrito'])  (solo el carrito)
+    v
+cerrar.php  setcookie(expira) + session_destroy()  (sesión completa)
 ```
 
 Separación de responsabilidades:
@@ -111,6 +125,35 @@ código interno y precio formateado con `number_format(valor, 2)` más el símbo
 de colones. Al final del body incluye el HTML del modal `#modalImagen`
 (oculto) y carga Bootstrap bundle + js/script.js.
 
+### index.php (sesiones)
+`session_start()` como primera instrucción, antes de cualquier salida.
+Lee `$_SESSION['carrito']` con `isset()` y `array_count_values()` cuenta cuántas
+veces aparece cada código para la insignia "En tu carrito (xN)" en las tarjetas
+ya agregadas; `array_sum()` obtiene el total de ítems para el contador
+"Carrito (N)" de la barra. Incluye el enlace a `cerrar.php`.
+
+### agregar.php
+Página receptora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero
+con `(int)` (un dato malicioso quedaría en 0 y se rechaza), verifica en la BD que
+el producto exista y solo entonces agrega el código al arreglo y lo guarda en
+`$_SESSION['carrito']`. Muestra una confirmación con el nombre agregado y el
+total acumulado.
+
+### carrito.php
+Reconstruye los ítems consultando la BD por cada código guardado y acumula el
+precio en `$total`. Presenta la tabla con miniaturas, el total en `tfoot` y el
+botón "Vaciar carrito" (formulario POST). Si no hay ítems muestra un aviso.
+
+### vaciar.php
+Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal
+permanece viva, porque solo se descarta el carrito.
+
+### cerrar.php
+Cierra la sesión completa: `session_name()` obtiene el nombre de la cookie,
+`session_get_cookie_params()` sus atributos, `setcookie()` con fecha 1 y el mismo
+path fuerza su eliminación en el navegador, y `session_destroy()` borra los datos
+del archivo en el servidor.
+
 ### css/style.css
 Complementa Bootstrap (no lo duplica). Solo define:
 - `.img-producto`: altura fija de 260px, recorte centrado con object-fit y cursor pointer.
@@ -138,6 +181,8 @@ Interactividad del modal:
 | Validación de conexión antes de usarla | conexion.php | Páginas rotas / fugas de información |
 | Validación del resultado de la consulta | productos.php | Errores silenciosos de SQL |
 | Cierre explícito de la conexión | productos.php | Agotamiento de recursos del servidor |
+| Cast `(int)` del código recibido por POST | agregar.php | Inyección SQL / datos maliciosos en la sesión |
+| `isset()` defensivo antes de leer `$_SESSION` | index/agregar/carrito | Accidentes por llaves inexistentes |
 | Mensajes de error claros, sin credenciales | todos | Exposición de información sensible |
 
 ---

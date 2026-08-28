@@ -72,6 +72,11 @@ Lista de verificación visual:
 - [ ] Todas las imágenes cargan (ningún ícono roto)
 - [ ] La cuadrícula responde: 3 tarjetas por fila en PC, 1 por fila en móvil
 - [ ] Al hacer clic en una imagen se abre ampliada en una ventana modal
+- [ ] Al pulsar "Agregar al carrito" sale la confirmación y el contador sube
+- [ ] La tarjeta agregada muestra la insignia "En tu carrito (xN)"
+- [ ] "Carrito" lista todos los ítems con miniatura y el total sumado
+- [ ] "Vaciar carrito" borra el listado; el carrito queda vacío
+- [ ] "Cerrar sesión" muestra "Sesión destruida" y el carrito vuelve a estar vacío
 
 ## Paso 5: Prueba de fallo controlado
 

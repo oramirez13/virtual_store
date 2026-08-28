@@ -1,14 +1,23 @@
 # Tienda Virtual de Camisetas UNIX
 
-Galería web de productos que muestra camisetas almacenadas en una base de datos MySQL/MariaDB, desarrollada con PHP y Bootstrap.
+Tienda web que muestra 15 camisetas almacenadas en MariaDB e incluye un carrito de compras gestionado con sesiones de PHP (`$_SESSION`). Desarrollo con PHP y Bootstrap.
 
-## Descripción
+## Funcionalidades
 
-Cada producto está conformado por: **código**, **nombre**, **detalle**, **imagen** (URL) y **precio**. El sitio consulta los productos desde la tabla `Productos` de la base `Tienda` y los presenta al usuario en una cuadrícula de tarjetas.
+- Galería responsiva de 15 camisetas leídas desde MariaDB.
+- Clic sobre cualquier imagen: modal de Bootstrap con la foto ampliada, nombre del producto como título y botón X de cerrado (también cierra con Esc o clic fuera).
+- Botón flotante "volver arriba" con desplazamiento suave (esquina inferior derecha).
+- Formato monetario del precio en colones.
+- Botón "Agregar al carrito" por tarjeta: valida el producto en la base de datos y lo guarda como arreglo de códigos en `$_SESSION['carrito']`.
+- Insignia "En tu carrito (xN)" en las tarjetas cuyos productos ya fueron agregados.
+- Contador "Carrito (N)" en la barra superior que refleja los ítems acumulados.
+- Página del carrito: consulta cada código en la base de datos, muestra miniaturas y total acumulado.
+- Botón "Vaciar carrito": borra solo el carrito con `unset($_SESSION['carrito'])`.
+- Enlace "Cerrar sesión": borra la cookie de sesión (con su path real) y ejecuta `session_destroy()`.
 
 ## Tecnologías
 
-- PHP 8 (extensión mysqli)
+- PHP 8 (extensión mysqli y sesiones nativas)
 - MySQL/MariaDB (servidor LAMPP)
 - HTML5 + Bootstrap 5.3.8 (plantilla base skeletor.html)
 - JavaScript (modal de imagen ampliada)
@@ -19,7 +28,11 @@ Cada producto está conformado por: **código**, **nombre**, **detalle**, **imag
 tienda_virtual/
 ├── conexion.php        # Conexión a la base de datos MySQL/MariaDB
 ├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
-├── index.php           # Galería de productos (HTML/PHP) + modal de imagen ampliada
+├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
+├── agregar.php         # Receptora POST: valida el código y lo guarda en la sesión
+├── carrito.php         # Visualiza todos los ítems del carrito y el total
+├── vaciar.php          # Borra solo el carrito (unset)
+├── cerrar.php          # Cierra la sesión completa (cookie + session_destroy)
 ├── tienda.sql          # Script SQL: creación de tabla + 15 productos de prueba
 ├── README.md           # Este archivo
 ├── DOCUMENTACION.md    # Documentación técnica (arquitectura, flujo de datos, seguridad)
@@ -31,12 +44,17 @@ tienda_virtual/
 ├── img/                # Imágenes locales de los productos
 │   ├── camiseta_01.jpg
 │   ├── ...
-│   └── camiseta_15.jpg
+│   ├── camiseta_15.jpg
+│   └── icons8-shopping-cart-48.png  # Icono del carrito en la barra
 └── screenshots/        # Capturas de pantalla del sitio y de phpMyAdmin
-    ├── galeria_01.png
-    ├── galeria_02.png
-    ├── galeria_03.png
-    └── galeria_04.png
+    ├── galeria_01.png  # Página principal de la tienda
+    ├── galeria_02.png  # Galería con 3 productos en el carrito
+    ├── galeria_03.png  # phpMyAdmin: lista de productos
+    ├── galeria_04.png  # phpMyAdmin: resultado de un SELECT
+    ├── galeria_05.png  # Modal con la imagen ampliada de un producto
+    ├── carrito_01.png  # Confirmación al agregar un producto
+    ├── carrito_02.png  # Contenido del carrito de compras
+    └── sesion_destruida_01.png  # Aviso de sesión destruida
 ```
 
 ## Requisitos previos
@@ -69,34 +87,47 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 | Contraseña | (vacía)  |
 | Base      | Tienda   |
 
-## Funcionalidades
-
-- Galería responsiva de 15 camisetas leídas desde MariaDB.
-- Clic sobre cualquier imagen: modal de Bootstrap con la foto ampliada, nombre del producto como título y botón X de cerrado (también cierra con Esc o clic fuera).
-- Botón flotante "volver arriba" con desplazamiento suave (esquina inferior derecha).
-- Formato monetario del precio en colones.
-
 ## Capturas de pantalla
 
-**Tienda Virtual funcionando en el navegador:**
+**Página principal de la tienda virtual de camisetas UNIX:**
 
-![Tienda Virtual en el navegador](screenshots/galeria_01.png)
+![Página principal](screenshots/galeria_01.png)
 
-**Producto seleccionado con su imagen ampliada (modal):**
+**Modal que amplía la imagen seleccionada de un producto:**
 
-![Imagen ampliada de un producto](screenshots/galeria_02.png)
+![Imagen ampliada de un producto](screenshots/galeria_05.png)
 
-**phpMyAdmin mostrando la lista de productos de la tabla `Productos`:**
+**Galería con 3 productos agregados al carrito (insignias y contador):**
+
+![Galería con productos en el carrito](screenshots/galeria_02.png)
+
+**Confirmación al agregar un producto: muestra la cantidad acumulada y las
+opciones "regresar a la galería" o "ver el carrito":**
+
+![Confirmación de producto agregado](screenshots/carrito_01.png)
+
+**Contenido del carrito de compras:**
+
+![Contenido del carrito de compras](screenshots/carrito_02.png)
+
+**Aviso de sesión destruida con botón para regresar a la galería:**
+
+![Sesión destruida](screenshots/sesion_destruida_01.png)
+
+**phpMyAdmin con la lista de productos de la tabla `Productos`:**
 
 ![phpMyAdmin - lista de productos](screenshots/galeria_03.png)
 
-**phpMyAdmin mostrando el resultado de la consulta `SELECT * FROM Productos`:**
+**Resultado de la consulta `SELECT * FROM Productos WHERE 1`:**
 
-![phpMyAdmin - SELECT * FROM Productos](screenshots/galeria_04.png)
+![phpMyAdmin - consulta SELECT](screenshots/galeria_04.png)
 
 ## Notas de seguridad aplicadas
 
 - `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
+- Cast `(int)` del código recibido por POST antes de usarlo en una consulta.
+- `isset()` defensivo antes de leer `$_SESSION['carrito']`.
 - Verificación de errores de conexión (`connect_error`) y de consulta (`error`).
+- Las acciones que modifican datos (agregar, vaciar) se envían por POST.
 - La conexión se cierra con `$conexion->close()` al terminar su uso.
 - Estilo orientado a objetos mysqli.
