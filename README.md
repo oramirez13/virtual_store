@@ -1,6 +1,13 @@
 # Tienda Virtual de Camisetas UNIX
 
-Tienda web que muestra productos almacenados en MariaDB e incluye un carrito de compras gestionado con sesiones de PHP (`$_SESSION`). Desarrollo con PHP y Bootstrap.
+**Tienda Virtual de Camisetas UNIX** es un proyecto académico que implementa una tienda en línea sencilla de camisetas con temática UNIX. Está desarrollada en **PHP 8 (estilo procedural)** con **MySQL/MariaDB**, usando **Bootstrap 5.3.8** y **JavaScript** en el frontend.
+
+Su funcionamiento se apoya en dos pilares:
+
+- **Catálogo dinámico**: los productos (15 camisetas) se consultan desde la base de datos en MariaDB y se presentan en una galería de tarjetas.
+- **Carrito de compras**: persistido mediante **sesiones de PHP** (`$_SESSION`), permitiendo agregar productos, ver el carrito, vaciarlo y cerrar sesión.
+
+Aplica prácticas básicas de seguridad como **sanitización de salida** (escape de datos con `htmlspecialchars()` contra XSS) y **validación de entradas** (casts y comprobaciones antes de usar datos llegados del usuario).
 
 ## Funcionalidades
 
