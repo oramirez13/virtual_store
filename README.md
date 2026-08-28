@@ -1,6 +1,6 @@
 # Tienda Virtual de Camisetas UNIX
 
-**Tienda Virtual de Camisetas UNIX** es un proyecto académico que implementa una tienda en línea sencilla de camisetas con temática UNIX. Está desarrollada en **PHP 8 (estilo procedural)** con **MySQL/MariaDB**, usando **Bootstrap 5.3.8** y **JavaScript** en el frontend.
+**Tienda Virtual de Camisetas UNIX** es un proyecto académico que implementa una tienda en línea de camisetas. Está desarrollada en **PHP 8 (estilo procedural)** con **MySQL/MariaDB**, usando **Bootstrap 5.3.8** y **JavaScript** en el frontend.
 
 Su funcionamiento se apoya en dos pilares:
 
