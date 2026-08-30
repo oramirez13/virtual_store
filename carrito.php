@@ -27,7 +27,7 @@ if(count($carrito) > 0){
     // Recorre los códigos guardados en la sesión, uno por uno
     foreach($carrito as $codigo){
 
-        // (int) refuerza que el código sea un entero antes de la consulta
+        // (int): refuerza que el código sea un entero antes de la consulta
         $codigo = (int)$codigo;
 
         // Prepared statement: mismo patrón que agregar.php. La consulta lleva
@@ -35,13 +35,13 @@ if(count($carrito) > 0){
         // base nunca lo interpreta como parte del SQL (evita inyección).
         $consulta = $conexion->prepare("SELECT * FROM Productos WHERE codigo = ?");
 
-        // Si falla la preparación se sale del bucle con un aviso
+        // Si falla la preparación, se sale del bucle con un aviso
         if($consulta == false){
             $advertencia = "Error al consultar un producto del carrito.";
             break;
         }
 
-        // bind_param("i", $codigo): aquí la "i" indica un dato entero
+        // bind_param("i", $codigo): la "i" declara un dato entero
         $consulta->bind_param("i", $codigo);
 
         // execute(): ejecuta la consulta ya preparada
@@ -56,7 +56,7 @@ if(count($carrito) > 0){
         // Libera la consulta preparada; la conexión se cierra al final
         $consulta->close();
 
-        // Si el producto existe se acumula en la lista y en el total
+        // Si el producto existe, se acumula en la lista y en el total
         if($fila != null){
             $items[] = $fila;
             $total += $fila['precio'];
@@ -84,7 +84,7 @@ if(count($carrito) > 0){
   <body>
     <div class="container mt-4">
       <h1 class="mb-4">
-        <!-- Icono del carrito junto al titulo, mismo estilo que la barra -->
+        <!-- Icono del carrito junto al título, mismo estilo que la barra -->
         <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 28px;" class="me-2">
         Carrito de Compras
       </h1>
@@ -100,7 +100,7 @@ if(count($carrito) > 0){
           Tu carrito está vacío. <a href="index.php">Ir a la galería</a>
         </div>
       <?php } else { ?>
-        <!-- Tabla de productos: una fila por cada unidad en el carrito -->
+        <!-- Tabla de productos: una fila por cada unidad del carrito -->
         <table class="table table-striped align-middle">
           <thead class="table-dark">
             <tr>
@@ -134,8 +134,8 @@ if(count($carrito) > 0){
           </tfoot>
         </table>
 
-        <!-- Boton para borrar el carrito: envía POST a vaciar.php.
-             Se usa formulario y no enlace, porque vaciar MODIFICA datos -->
+        <!-- Botón para borrar el carrito: envía POST a vaciar.php.
+             Se usa formulario y no enlace, porque vaciar modifica datos -->
         <form method="post" action="vaciar.php" class="d-inline">
           <button type="submit" class="btn btn-danger">Vaciar carrito</button>
         </form>

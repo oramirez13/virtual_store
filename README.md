@@ -133,7 +133,7 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 - `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
 - Cast `(int)` del código recibido por POST antes de usarlo en una consulta.
-- Credenciales de la base de datos en `config.php`, fuera del código fuente (recomendación del profesor).
+- Credenciales de la base de datos en `config.php`, fuera del código fuente.
 - Consultas preparadas (`prepare()` + `bind_param()`) en `agregar.php` y `carrito.php`: el valor viaja separado del SQL (previene inyección SQL).
 - `isset()` defensivo antes de leer `$_SESSION['carrito']`.
 - Verificación de errores de conexión (`connect_error`) y de consulta (`error`).

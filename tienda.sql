@@ -2,32 +2,31 @@
 -- Script SQL de la base de datos "Tienda"
 -- Motor: MariaDB (incluido en LAMPP)
 --
--- Crea la base de datos y la tabla "Productos" con los campos
--- del proyecto e inserta 15 productos de prueba.
--- Las rutas de imagen son RELATIVAS: funcionan sin importar el
--- nombre de la carpeta donde se publique el sitio.
+-- Crea la base de datos, la tabla "Productos" y 15 productos de
+-- prueba. Las rutas de imagen son relativas, por lo que funcionan
+-- sin importar la carpeta donde se publique el sitio.
 -- =============================================================
 
--- Crea la base de datos si todavía no existe
+-- Crea la base si no existe, para permitir volver a ejecutar el script
 CREATE DATABASE IF NOT EXISTS Tienda;
 
--- Selecciona la base de datos para trabajar sobre ella
+-- Selecciona la base de datos sobre la que se trabajará
 USE Tienda;
 
--- Elimina la tabla si existiera (permite re-ejecutar el script)
+-- Elimina la tabla si existiera antes de recrearla
 DROP TABLE IF EXISTS Productos;
 
 -- Creación de la tabla "Productos"
 CREATE TABLE Productos (
-    codigo INT PRIMARY KEY,          -- Código único del producto (identificador)
+    codigo INT PRIMARY KEY,          -- Identificador único de cada producto
     nombre VARCHAR(100),             -- Nombre comercial del producto
-    detalle TEXT,                    -- Descripción larga del producto
+    detalle TEXT,                    -- Descripción del producto
     imagen VARCHAR(255),             -- Ruta de la imagen del producto
     precio DOUBLE                    -- Precio del producto (admite decimales)
 );
 
--- Inserción de los 15 productos;
--- el campo imagen apunta a las imágenes locales de la carpeta img/
+-- Inserción de los 15 productos del catálogo; el campo imagen
+-- apunta a las imágenes locales de la carpeta img/
 INSERT INTO Productos (codigo, nombre, detalle, imagen, precio) VALUES
 (1,  'Camiseta Mostaza',        'Camiseta estampada de algodón 100%, tono mostaza, corte clásico. Tallas S a XXL.',                                      'img/camiseta_01.jpg', 12500),
 (2,  'Camiseta Azul Estampada', 'Camiseta estampada 100% algodón en color azul, con diseño exclusivo al frente y tela fresca.',                          'img/camiseta_02.jpg', 12500),
@@ -45,5 +44,5 @@ INSERT INTO Productos (codigo, nombre, detalle, imagen, precio) VALUES
 (14, 'Camiseta Café',           'Camiseta estampada 100% algodón grueso en color café chocolate, alta durabilidad.',                                     'img/camiseta_14.jpg', 12500),
 (15, 'Camiseta Azul Petróleo',  'Camiseta estampada 100% algodón en tono azul petróleo profundo, diseño elegante de moda urbana.',                       'img/camiseta_15.jpg', 12500);
 
--- Verificación rápida de los datos insertados (opcional)
+-- Consulta opcional para comprobar los datos insertados
 SELECT * FROM Productos;

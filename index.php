@@ -1,24 +1,26 @@
 <?php
-// index.php: galería de productos con botón "Agregar al carrito".
-// La sesión guarda los productos elegidos por el usuario.
+// index.php: muestra la galería de productos y permite agregar
+// cada uno al carrito de compras. El carrito se guarda en la
+// sesión del usuario.
 
-// session_start(): crea la sesión o carga la existente.
-// Debe ejecutarse antes de CUALQUIER salida (HTML o echo);
-// de lo contrario las cabeceras HTTP ya se enviaron y falla.
+// session_start(): abre la sesión o retoma la existente. Debe
+// ejecutarse antes de enviar cualquier salida HTML, porque envía
+// la cabecera HTTP de la cookie de sesión.
 session_start();
 
-// Ejecuta la consulta y genera el arreglo $productos
+// include 'productos.php': consulta los productos y deja listo
+// el arreglo $productos para recorrerlo en la galería
 include 'productos.php';
 
-// Lee el carrito de la sesión; si todavía no existe, inicia vacío.
-// Lectura defensiva: isset() comprueba antes de usar la variable.
+// Lee el carrito de la sesión; si no existe, se trata como vacío.
+// isset() comprueba la existencia de la llave antes de usarla.
 $conteo = [];
 if(isset($_SESSION['carrito'])){
     // array_count_values(): cuenta cuántas veces aparece cada código;
-    // para un carrito [4, 7, 4] devuelve [4 => 2, 7 => 1]
+    // con [4, 7, 4] devuelve [4 => 2, 7 => 1]
     $conteo = array_count_values($_SESSION['carrito']);
 }
-// Total de items = suma de las cantidades de cada producto
+// array_sum(): suma las cantidades para obtener el total de ítems
 $cantidad = array_sum($conteo);
 ?>
 <!doctype html>
@@ -41,27 +43,27 @@ $cantidad = array_sum($conteo);
   </head>
 
   <body>
-    <!-- Barra superior; "inicio" es destino del botón volver arriba -->
+    <!-- Barra superior; "inicio" es el destino del botón volver arriba -->
     <nav id="inicio" class="navbar navbar-dark bg-dark mb-4">
-      <!-- Flex: marca a la izquierda, enlaces a la derecha -->
+      <!-- Flex de Bootstrap: marca a la izquierda, enlaces a la derecha -->
       <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand mb-0 h1">Tienda Virtual de Camisetas UNIX</span>
         <div>
         <?php if($cantidad > 0){ ?>
-          <!-- Enlace al carrito: icono + contador de items -->
+          <!-- Enlace al carrito con el contador de ítems -->
           <a href="carrito.php" class="text-white text-decoration-none">
             <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 22px;" class="me-1">
             Carrito (<?php echo $cantidad; ?>)
           </a>
         <?php } else { ?>
-          <!-- Enlace al carrito sin contador cuando no hay items -->
+          <!-- Enlace al carrito sin contador cuando no hay ítems -->
           <a href="carrito.php" class="text-white text-decoration-none">
             <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 22px;" class="me-1">
             Carrito
           </a>
         <?php } ?>
-          <!-- Destruye la sesión completa: borra la cookie y los
-               datos guardados en el servidor -->
+          <!-- Cierra la sesión completa: borra la cookie y los datos
+               guardados en el servidor -->
           <a href="cerrar.php" class="text-white text-decoration-none ms-3">Cerrar sesión</a>
         </div>
       </div>
@@ -72,28 +74,29 @@ $cantidad = array_sum($conteo);
 
       <div class="row">
         <?php
-        // Recorre un producto por vuelta; $producto es un arreglo asociativo
+        // foreach(): recorre los productos; en cada vuelta $producto es una fila
         foreach ($productos as $producto) {
 
-            // htmlspecialchars(): escapa caracteres especiales HTML (evita XSS)
+            // htmlspecialchars(): escapa los datos antes de imprimirlos,
+            // para evitar que contenido de la BD se ejecute como HTML
             $codigo  = htmlspecialchars($producto['codigo']);
             $nombre  = htmlspecialchars($producto['nombre']);
             $detalle = htmlspecialchars($producto['detalle']);
             $imagen  = htmlspecialchars($producto['imagen']);
 
-            // number_format(): precio con 2 decimales y separador de miles
+            // number_format(): da formato al precio con 2 decimales
             $precio = number_format($producto['precio'], 2);
         ?>
-          <!-- Tarjeta: ancho completo en movil, tercio de pantalla en PC -->
+          <!-- Tarjeta: ancho completo en móvil y un tercio en computadora -->
           <div class="col-12 col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
-              <!-- Foto del producto; al hacer clic script.js abre el modal -->
+              <!-- Foto del producto; al hacer clic, script.js abre el modal -->
               <img src="<?php echo $imagen; ?>" class="card-img-top img-producto" alt="<?php echo $nombre; ?>">
 
               <div class="card-body">
                 <?php if(isset($conteo[$producto['codigo']])){ ?>
-                  <!-- Insignia que refleja el estado guardado en la sesión;
-                       restaura la selección como un checkbox marcado -->
+                  <!-- Insignia que indica que el producto ya está en el carrito;
+                       usa el conteo leído de la sesión -->
                   <span class="badge text-bg-success mb-2">
                     En tu carrito (x<?php echo $conteo[$producto['codigo']]; ?>)
                   </span>
@@ -104,11 +107,11 @@ $cantidad = array_sum($conteo);
 
               <div class="card-footer bg-white">
                 <small class="text-muted">Código: <?php echo $codigo; ?></small>
-                <!-- fw-bold y text-success: clases de Bootstrap -->
+                <!-- Clases de Bootstrap: texto en negrita de color verde -->
                 <p class="mb-0 fw-bold text-success">&#8353; <?php echo $precio; ?></p>
 
                 <!-- Formulario que envía el código del producto a agregar.php.
-                     El campo oculto (hidden) viaja por POST sin verse en pantalla -->
+                     El campo oculto viaja por POST sin mostrarse en pantalla -->
                 <form method="post" action="agregar.php" class="mt-2">
                   <input type="hidden" name="codigo" value="<?php echo $codigo; ?>">
                   <button type="submit" class="btn btn-primary btn-sm w-100">
@@ -127,20 +130,20 @@ $cantidad = array_sum($conteo);
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <!-- Titulo con el nombre del producto -->
+            <!-- Título del modal con el nombre del producto -->
             <h5 class="modal-title" id="modalImagenTitulo">Producto</h5>
-            <!-- btn-close: botón X de cierre nativo de Bootstrap -->
+            <!-- Botón X de cierre nativo de Bootstrap -->
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
           <div class="modal-body p-0">
-            <!-- Imagen ampliada; src lo llena script.js -->
+            <!-- Imagen ampliada; su origen lo asigna script.js -->
             <img id="imagenAmpliada" src="" alt="" class="img-fluid w-100">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Boton flotante volver arriba (ancla a #inicio) -->
+    <!-- Botón flotante volver arriba (ancla a #inicio) -->
     <a href="#inicio" class="btn btn-dark btn-volver-arriba position-fixed bottom-0 end-0 m-4 shadow-sm"
        aria-label="Volver arriba">&#8593;</a>
 
@@ -151,7 +154,7 @@ $cantidad = array_sum($conteo);
       crossorigin="anonymous"
     ></script>
 
-    <!-- Logica propia del modal -->
+    <!-- Lógica propia del modal -->
     <script src="js/script.js" type="text/javascript"></script>
   </body>
 </html>

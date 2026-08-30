@@ -109,8 +109,8 @@ con `connect_error`, consultas con `query()` y lectura con `fetch_assoc()`.
 ### config.php
 Archivo de configuración separado con las 4 credenciales ($host, $usuario,
 $contrasena, $basedatos). No contiene lógica: su único propósito es que la
-información de conexión no quede mezclada con el código (recomendación del
-profesor). Se carga desde conexion.php con `require`.
+información de conexión no quede mezclada con el código. Se carga desde
+conexion.php con `require`.
 
 ### conexion.php
 Carga las credenciales con `require 'config.php'` y crea la conexión con
@@ -145,8 +145,8 @@ Página receptora del formulario. Valida `isset($_POST['codigo'])`, fuerza enter
 con `(int)` (un dato malicioso quedaría en 0 y se rechaza), verifica en la BD que
 el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i",
 $codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL
-y no puede inyectarse código (recomendación del profesor para consultas con
-entrada del usuario). Solo entonces agrega el código al arreglo y lo guarda en
+y no puede inyectarse código. Este patrón es obligatorio cuando una consulta
+recibe datos provenientes del usuario. Solo entonces agrega el código al arreglo y lo guarda en
 `$_SESSION['carrito']`. Muestra una confirmación con el nombre agregado y el
 total acumulado.
 

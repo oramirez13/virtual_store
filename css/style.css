@@ -1,31 +1,31 @@
 /* ============================================================
-   style.css - Estilos de la Tienda Virtual
-   Complemento de Bootstrap 5.
+   style.css - Estilos propios de la Tienda Virtual
+   Complementa a Bootstrap 5.
    ============================================================ */
 
-/* Altura uniforme para las fotos: evita que la grilla se deforme */
+/* Altura fija para las fotos y recorte centrado */
 .img-producto {
-    height: 260px;     /* Todas las fotos miden lo mismo de alto */
-    object-fit: cover; /* Recorte centrado sin deformar la imagen */
-    cursor: pointer;   /* Al pasar el mouse: invita a hacer clic */
+    height: 260px;     /* Misma altura en todas las fotografías */
+    object-fit: cover; /* Recorta centrando sin deformar la imagen */
+    cursor: pointer;   /* Cambia el cursor para señalar que hay clic */
 }
 
-/* Efecto hover de las tarjetas */
+/* Efecto de elevación al pasar el cursor por una tarjeta */
 .card:hover {
-    transform: translateY(-5px);                /* La tarjeta sube 5 píxeles */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra más marcada */
-    transition: all 0.25s ease-in-out;          /* Cambio suave */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s ease-in-out;
 }
 
-/* Animación del botón "volver arriba" */
+/* Desplazamiento suave para el botón "volver arriba" */
 html {
     scroll-behavior: smooth;
 }
 
-/* Botón volver arriba usando Bootstrap */
+/* Botón flotante "volver arriba", forma circular */
 .btn-volver-arriba {
     width: 48px;           /* Ancho fijo */
-    height: 48px;          /* Igual al ancho: círculo perfecto */
+    height: 48px;          /* Igual al ancho para quedar circular */
     border-radius: 50%;    /* Bordes totalmente redondeados */
-    font-size: 1.3rem;     /* Flecha más grande que el texto normal */
+    font-size: 1.3rem;     /* Tamaño de la flecha */
 }

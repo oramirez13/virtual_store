@@ -1,26 +1,22 @@
 <?php
-// cerrar.php: destruye la sesion completa del usuario,
-// siguiendo el patrón estándar de cierre de sesión.
+// cerrar.php: cierra la sesión del usuario por completo, tanto la
+// cookie del navegador como los datos guardados en el servidor.
 
-// Carga la sesion antes de cualquier salida (obligatorio)
+// session_start(): abre la sesión antes de modificar su cookie
 session_start();
 
-// session_name(): devuelve el nombre de la cookie de sesion
-// (por defecto se llama PHPSESSID)
+// session_name(): nombre de la cookie de sesión (por defecto PHPSESSID)
 $nombre = session_name();
 
-// session_get_cookie_params(): arreglo con los atributos reales
-// de la cookie de sesion (path, domain, secure, etc.)
+// session_get_cookie_params(): atributos reales de la cookie (path, etc.)
 $parametros = session_get_cookie_params();
 
-// Borra la cookie del navegador: valor vacio, fecha 1 (1970, ya paso)
-// y el MISMO path leido de los parametros; si no coincide el path,
-// el navegador no eliminaria la original
+// setcookie(): envía una cookie con fecha pasada (1) y el mismo path,
+// con lo cual el navegador elimina la cookie original de la sesión
 setcookie($nombre, '', 1, $parametros["path"]);
 
-// Destruye todos los datos de la sesion EN EL SERVIDOR
-// (aqui si se usa destroy porque se cierra TODO, no solo el carrito;
-// comparar con vaciar.php, que solo borra la llave del carrito)
+// session_destroy(): elimina los datos de la sesión en el servidor.
+// A diferencia de vaciar.php, aquí se cierra la sesión completa.
 session_destroy();
 ?>
 <!doctype html>
@@ -41,14 +37,13 @@ session_destroy();
 
   <body>
     <div class="container mt-5" style="max-width: 480px;">
-      <!-- Confirmacion de cierre, mismo estilo que las demas paginas -->
+      <!-- Confirmación del cierre de sesión -->
       <div class="card shadow-sm">
         <div class="card-body text-center">
-          <!-- Confirmación del cierre de sesión -->
           <h1 class="h4 mb-3">Sesión destruida</h1>
           <p class="mb-3">Se cerró la sesión y se vació el carrito.</p>
 
-          <!-- Unica navegacion posible: volver a empezar -->
+          <!-- Opción de navegación para volver al inicio -->
           <a href="index.php" class="btn btn-primary btn-sm">Ir a la galería</a>
         </div>
       </div>

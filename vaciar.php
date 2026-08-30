@@ -1,16 +1,13 @@
 <?php
-// vaciar.php: borra todos los productos del carrito de la sesión
-// (botón "Vaciar carrito" de la página del carrito).
+// vaciar.php: elimina todos los productos del carrito de la sesión.
+// Es el destino del botón "Vaciar carrito" de la página del carrito.
 
-// Carga la sesión antes de cualquier salida
+// session_start(): abre la sesión antes de cualquier salida
 session_start();
 
-// unset() elimina UNA llave del arreglo $_SESSION:
-// se borra solo el carrito y el resto de la sesión sigue viva.
-//
-// Nota didáctica: session_destroy() destruye
-// la sesión COMPLETA del usuario; aqui no la usamos porque solo
-// queremos descartar el carrito, no cerrar la sesión entera.
+// unset(): elimina una llave específica del arreglo $_SESSION.
+// Aquí borra solo el carrito; el resto de la sesión sigue activa.
+// No se usa session_destroy() porque cerraría la sesión completa.
 unset($_SESSION['carrito']);
 ?>
 <!doctype html>
@@ -31,13 +28,13 @@ unset($_SESSION['carrito']);
 
   <body>
     <div class="container mt-5" style="max-width: 480px;">
-      <!-- Confirmacion de que el carrito quedó vacío -->
+      <!-- Confirmación de que el carrito quedó vacío -->
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <h1 class="h4 mb-3">Carrito de compras</h1>
           <p class="text-danger fw-bold mb-3">El carrito se ha vaciado.</p>
 
-          <!-- Enlaces para continuar navegando -->
+          <!-- Opciones de navegación para continuar -->
           <a href="index.php" class="btn btn-outline-secondary btn-sm">&lt;= Regresar a la galería</a>
           <a href="carrito.php" class="btn btn-primary btn-sm">Ver el carrito</a>
         </div>

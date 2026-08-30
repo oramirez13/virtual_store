@@ -12,7 +12,7 @@ $productoNombre = "";
 // Cuántos productos lleva el carrito después de la operación
 $cantidadAhora = 0;
 
-// Lee el carrito actual; si no existe todavia, inicia vacío.
+// Lee el carrito actual; si no existe, inicia como arreglo vacío.
 // Lectura defensiva: isset() comprueba antes de usar la variable.
 if(isset($_SESSION['carrito'])){
     $carrito = $_SESSION['carrito'];
@@ -23,8 +23,8 @@ if(isset($_SESSION['carrito'])){
 // Verifica que llegó un código desde el formulario de la galería
 if(isset($_POST['codigo'])){
 
-    // (int) convierte el valor a numero entero:
-    // si alguien envía texto malicioso, queda en 0 y se rechaza
+    // (int): convierte el valor a número entero. Si alguien envía
+    // texto no numérico, queda en 0 y se rechaza con la validación.
     $codigo = (int)$_POST['codigo'];
 
     if($codigo > 0){
@@ -33,19 +33,17 @@ if(isset($_POST['codigo'])){
         // conexion.php a su vez carga las credenciales desde config.php
         include 'conexion.php';
 
-        // Prepared statement: la consulta se prepara con un marcador (?) y el
-        // valor se envía POR SEPARADO al momento de ejecutarla. Asi lo
-        // recomienda el profesor cuando la consulta recibe datos del usuario:
-        // si alguien intentara inyectar SQL, ese texto se trataría como un
-        // simple valor y nunca como parte de la instrucción SQL.
+        // Prepared statement: la consulta se prepara con un marcador (?) y
+        // el valor se envía por separado al momento de ejecutarla. Así el
+        // dato nunca se interpreta como parte de la instrucción SQL.
         $consulta = $conexion->prepare("SELECT nombre FROM Productos WHERE codigo = ?");
 
-        // Buena práctica: comprobar que la preparación de la consulta funcionó
+        // Comprueba que la consulta se preparó sin errores
         if($consulta == false){
             $mensaje = "Error en la consulta: {$conexion->error}";
         }else{
             // bind_param("i", $codigo): sustituye el (?) por el valor.
-            // La "i" le dice a MySQL que el dato es un entero (integer).
+            // La "i" declara que el dato enviado es un entero (integer).
             $consulta->bind_param("i", $codigo);
 
             // execute(): ejecuta la consulta ya preparada
@@ -61,8 +59,8 @@ if(isset($_POST['codigo'])){
             $consulta->close();
 
             if($fila != null){
-                // El producto existe: se agrega al arreglo del carrito.
-                // $_SESSION acepta arreglos nativos, sin implode()
+                // El producto existe: se guarda su código al final del arreglo.
+                // $_SESSION admite arreglos nativos, sin implode()
                 $carrito[] = $codigo;
 
                 // Guarda el carrito completo de vuelta en la sesión

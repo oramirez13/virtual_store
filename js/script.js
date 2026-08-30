@@ -1,35 +1,35 @@
 // ============================================================
 // script.js - JavaScript de la Tienda Virtual
 //
-// Funcionalidad: al hacer clic en la foto de una camiseta se
-// abre la imagen ampliada.
+// Función: al hacer clic en la foto de un producto se abre el
+// modal de Bootstrap con la imagen ampliada y su nombre.
 // ============================================================
 
-// querySelectorAll(): obtiene todas las fotos de la galería (.img-producto)
+// querySelectorAll(): obtiene todas las fotos de la galería
 var imagenes = document.querySelectorAll('.img-producto');
 
-// forEach(): recorre la lista y ejecuta el bloque por cada imagen
+// forEach(): ejecuta el bloque por cada imagen encontrada
 imagenes.forEach(function(imagen) {
 
-    // addEventListener(): registra la acción al hacer clic en la imagen
+    // addEventListener(): ejecuta la función al hacer clic
     imagen.addEventListener('click', function() {
 
-        // this: la imagen clickeada; se obtiene la <img> del modal
+        // this: la imagen sobre la que se hizo clic
         var imagenAmpliada = document.getElementById('imagenAmpliada');
 
         // src: copia la URL de la foto original al modal
         imagenAmpliada.src = this.src;
 
-        // alt: copia el nombre del producto
+        // alt: copia el nombre del producto como texto alternativo
         imagenAmpliada.alt = this.alt;
 
-        // textContent: coloca el nombre como título del modal
+        // textContent: coloca ese nombre como título del modal
         document.getElementById('modalImagenTitulo').textContent = this.alt;
 
-        // Modal: objeto de Bootstrap que controla la ventana emergente
+        // bootstrap.Modal: controla la ventana emergente de Bootstrap
         var modal = new bootstrap.Modal(document.getElementById('modalImagen'));
 
-        // show(): despliega el modal; cierra con X, Esc o clic fuera
+        // show(): muestra el modal; se cierra con X, Esc o clic afuera
         modal.show();
     });
 });
