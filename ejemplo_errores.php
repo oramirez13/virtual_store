@@ -74,9 +74,6 @@ try {
           <h2>Error en el sistema</h2>
           <p>{$mensaje}</p>
           <p style='font-size: .8rem; color: #6c757d;'>Se ha registrado el detalle en la bitácora.</p>
-          <a href='index.php' style='display:inline-block; margin-top: 1rem; padding: .5rem 1rem;
-          color:#fff; background:#0d6efd; border-radius:.375rem; text-decoration:none;'>
-          Volver a la página principal</a>
           </div>";
 
 // finally se ejecuta SIEMPRE, haya o no error.
