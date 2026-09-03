@@ -73,7 +73,6 @@ try {
           margin: 2rem auto; text-align: center;'>
           <h2>Error en el sistema</h2>
           <p>{$mensaje}</p>
-          <p style='font-size: .8rem; color: #6c757d;'>Se ha registrado el detalle en la bitácora.</p>
           </div>";
 
 // finally se ejecuta SIEMPRE, haya o no error.
