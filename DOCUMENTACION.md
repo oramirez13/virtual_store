@@ -116,8 +116,8 @@ tela 100% algodón; las descripciones lo reflejan.
 ## 4. Descripción archivo por archivo
 
 El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli:
-instancia de `mysqli`, validación
-con `connect_error`, consultas con `query()` y lectura con `fetch_assoc()`.
+instancia de `mysqli` con `mysqli_report()` (fallos lanzados como excepciones),
+consultas con `query()` / prepared statements y lectura con `fetch_assoc()`.
 
 ### config.php
 Archivo de configuración separado con las 4 credenciales ($host, $usuario,
