@@ -2,9 +2,6 @@
 .vscode/
 .idea/
 
-# Ignora archivos de configuracion local del proyecto
-config.php
-
 # Ignora archivos del sistema
 .DS_Store
 Thumbs.db
