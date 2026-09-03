@@ -24,7 +24,7 @@ session_destroy();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sesión destruida - Tienda Virtual</title>
+    <title>Iniciar sesión - Tienda Virtual</title>
 
     <!-- Framework CSS Bootstrap -->
     <link
@@ -40,11 +40,11 @@ session_destroy();
       <!-- Confirmación del cierre de sesión -->
       <div class="card shadow-sm">
         <div class="card-body text-center">
-          <h1 class="h4 mb-3">Sesión destruida</h1>
-          <p class="mb-3">Se cerró la sesión y se vació el carrito.</p>
+          <h1 class="h4 mb-3">Iniciar sesión</h1>
+          <p class="mb-3">La sesión se cerró y el carrito se vació. Para iniciar una nueva sesión, ingrese a la tienda.</p>
 
-          <!-- Opción de navegación para volver al inicio -->
-          <a href="index.php" class="btn btn-primary btn-sm">Ir a la galería</a>
+          <!-- Opción de navegación para iniciar sesión de nuevo -->
+          <a href="index.php" class="btn btn-primary btn-sm">Iniciar sesión</a>
         </div>
       </div>
     </div>

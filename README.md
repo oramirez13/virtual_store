@@ -82,8 +82,7 @@ tienda_virtual/
     ├── galeria_01.png            # Página principal de la tienda
     ├── galeria_02.png            # Galería con 5 productos en el carrito
     ├── galeria_03.png            # Modal con la imagen ampliada de un producto
-    ├── carrito_01.png            # Confirmación al agregar un producto
-    ├── sesion_destruida_01.png   # Aviso de sesión destruida
+    ├── sesion_destruida_01.png   # Aviso de inicio de sesión tras cerrar
     ├── base_de_datos_01.png      # phpMyAdmin: consulta SELECT sobre la tabla Productos
     ├── base_de_datos_02.png      # phpMyAdmin: filas de la tabla Productos
     ├── consulta_01.png           # Formulario de consultas
@@ -327,7 +326,7 @@ Lista de verificación visual:
 - [ ] La tarjeta agregada muestra la insignia "En tu carrito (xN)".
 - [ ] "Carrito" lista todos los ítems con miniatura y el total sumado.
 - [ ] "Vaciar carrito" borra el listado; el carrito queda vacío.
-- [ ] "Cerrar sesión" muestra "Sesión destruida" y el carrito vuelve a estar vacío.
+- [ ] "Cerrar sesión" cierra la sesión y permite "Iniciar sesión" de nuevo, con el carrito vacío.
 
 Funcionalidades adicionales:
 
@@ -428,11 +427,7 @@ Otras prácticas aplicadas:
 
 ![galeria_02](screenshots/galeria_02.png)
 
-**Interfaz que muestra los productos agregados al carrito de compras, así como la cantidad de productos y las opciones "regresar a la galería" o "ver el carrito".**
-
-![carrito_01](screenshots/carrito_01.png)
-
-**Muestra el aviso de sesión destruida y un botón para regresar a la galería.**
+**Muestra el aviso de inicio de sesión con un botón para ingresar a la tienda.**
 
 ![sesion_destruida_01](screenshots/sesion_destruida_01.png)
 
