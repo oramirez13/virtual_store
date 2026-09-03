@@ -55,7 +55,7 @@ Además, incorpora el formulario de **consultas** del cliente, la funcionalidad 
 
 ```
 tienda_virtual/
-├── config.php          # Credenciales de la BD (separadas del código de conexión)
+├── plantilla_config.php# Plantilla para crear config.php (sí se versiona)
 ├── conexion.php        # Abre y valida la conexión a MySQL/MariaDB usando config.php
 ├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
 ├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
@@ -82,7 +82,7 @@ tienda_virtual/
     ├── galeria_01.png            # Página principal de la tienda
     ├── galeria_02.png            # Galería con 5 productos en el carrito
     ├── galeria_03.png            # Modal con la imagen ampliada de un producto
-    ├── sesion_destruida_01.png   # Aviso de inicio de sesión tras cerrar
+    ├── sesion_finalizada_01.png  # Aviso mostrado al cerrar la sesión
     ├── base_de_datos_01.png      # phpMyAdmin: consulta SELECT sobre la tabla Productos
     ├── base_de_datos_02.png      # phpMyAdmin: filas de la tabla Productos
     ├── consulta_01.png           # Formulario de consultas
@@ -191,7 +191,10 @@ Característica común del catálogo: todas las camisetas son estampadas y de te
 El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli: instancia de `mysqli` con `mysqli_report()` (los fallos se lanzan como excepciones), consultas con `query()` o prepared statements y lectura con `fetch_assoc()`.
 
 ### config.php
-Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`.
+Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`. Por seguridad, **no se incluye en el repositorio** (está en `.gitignore`); se crea localmente copiando la plantilla `plantilla_config.php` a `config.php` y ajustando los valores si hace falta.
+
+### plantilla_config.php
+Plantilla versionada del archivo de configuración, sin credenciales reales. Sirve de referencia para que en otra máquina se genere el `config.php` con `cp plantilla_config.php config.php` antes de usar el proyecto.
 
 ### conexion.php
 Carga las credenciales con `require 'config.php'` y crea la conexión con `new mysqli(host, usuario, contrasena, BD)` dentro de un `try`. Habilita `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)` para que cualquier fallo se lance como excepción. En el `catch (mysqli_sql_exception)` registra el detalle con `error_log()` y muestra un mensaje amigable al usuario.
@@ -261,7 +264,12 @@ git clone https://github.com/oramirez13/tienda_virtual_camisetas_unix.git tienda
 
 # Acceso a la carpeta del proyecto
 cd tienda_virtual
+
+# Crea config.php a partir de la plantilla (config.php no viaja en el repo)
+cp plantilla_config.php config.php
 ```
+
+> El archivo `config.php` (con las credenciales reales) no se publica en el repositorio por seguridad; por eso se genera a partir de la plantilla. Si el LAMPP local usa credenciales distintas, se editan en ese `config.php` recién creado.
 
 ### Paso 1: Iniciar los servicios
 
@@ -386,6 +394,8 @@ Para reiniciar la base de datos a su estado original basta repetir el mismo coma
 
 ## 10. Credenciales de base de datos (LAMPP por defecto)
 
+Los valores por defecto del LAMPP se muestran a continuación. Se configuran en `config.php` (creado localmente a partir de `plantilla_config.php`, ya que `config.php` no se incluye en el repositorio):
+
 | Parámetro  | Valor     |
 | ---------- | --------- |
 | Host       | localhost |
@@ -400,7 +410,7 @@ Para reiniciar la base de datos a su estado original basta repetir el mismo coma
 | Medida | Dónde | Riesgo que mitiga |
 |--------|-------|-------------------|
 | `htmlspecialchars()` en todo dato impreso | index.php | XSS (inyección de HTML/JS desde datos de la BD) |
-| Credenciales en config.php | conexion.php | Credenciales expuestas en el código fuente |
+| Credenciales en config.php (fuera de git: .gitignore) | conexion.php | Credenciales expuestas en el repositorio o código fuente |
 | Prepared statements (prepare + bind_param) | agregar.php, carrito.php, finalizar_compra.php, guardar_consulta.php | Inyección SQL en consultas con datos del usuario/sesión |
 | Manejo de errores con try-catch + error_log | conexion/productos/agregar/carrito/finalizar/guardar | Errores silenciosos, fuga de información técnica |
 | Validación del formato de correo | guardar_consulta.php | Datos incorrectos en la base de datos |
@@ -427,9 +437,9 @@ Otras prácticas aplicadas:
 
 ![galeria_02](screenshots/galeria_02.png)
 
-**Muestra el aviso de inicio de sesión con un botón para ingresar a la tienda.**
+**Muestra el aviso que se presenta al usuario al cerrar la sesión, con un botón para iniciar sesión de nuevo.**
 
-![sesion_destruida_01](screenshots/sesion_destruida_01.png)
+![sesion_finalizada_01](screenshots/sesion_finalizada_01.png)
 
 **Muestra el modal con la imagen ampliada de un producto.**
 

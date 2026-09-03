@@ -10,3 +10,10 @@ Thumbs.db
 *.bak
 *~
 
+# Credenciales de acceso a la base de datos: no se versionan.
+# Se mantiene plantilla_config.php como plantilla para crear config.php.
+config.php
+
+# Guia local de replicacion: se mantiene local y no se versiona.
+REPLICACION.txt
+
