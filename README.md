@@ -55,7 +55,6 @@ Además, incorpora el formulario de **consultas** del cliente, la funcionalidad 
 
 ```
 tienda_virtual/
-├── plantilla_config.php# Plantilla para crear config.php (sí se versiona)
 ├── conexion.php        # Abre y valida la conexión a MySQL/MariaDB usando config.php
 ├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
 ├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
@@ -191,10 +190,7 @@ Característica común del catálogo: todas las camisetas son estampadas y de te
 El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli: instancia de `mysqli` con `mysqli_report()` (los fallos se lanzan como excepciones), consultas con `query()` o prepared statements y lectura con `fetch_assoc()`.
 
 ### config.php
-Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`. Por seguridad, **no se incluye en el repositorio** (está en `.gitignore`); se crea localmente copiando la plantilla `plantilla_config.php` a `config.php` y ajustando los valores si hace falta.
-
-### plantilla_config.php
-Plantilla versionada del archivo de configuración, sin credenciales reales. Sirve de referencia para que en otra máquina se genere el `config.php` con `cp plantilla_config.php config.php` antes de usar el proyecto.
+Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`. Por seguridad, **no se incluye en el repositorio** (está en `.gitignore`); se crea localmente en cada máquina tomando como referencia los valores por defecto de la sección "Credenciales de base de datos" de este documento.
 
 ### conexion.php
 Carga las credenciales con `require 'config.php'` y crea la conexión con `new mysqli(host, usuario, contrasena, BD)` dentro de un `try`. Habilita `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)` para que cualquier fallo se lance como excepción. En el `catch (mysqli_sql_exception)` registra el detalle con `error_log()` y muestra un mensaje amigable al usuario.
@@ -264,12 +260,9 @@ git clone https://github.com/oramirez13/tienda_virtual_camisetas_unix.git tienda
 
 # Acceso a la carpeta del proyecto
 cd tienda_virtual
-
-# Crea config.php a partir de la plantilla (config.php no viaja en el repo)
-cp plantilla_config.php config.php
 ```
 
-> El archivo `config.php` (con las credenciales reales) no se publica en el repositorio por seguridad; por eso se genera a partir de la plantilla. Si el LAMPP local usa credenciales distintas, se editan en ese `config.php` recién creado.
+> El archivo `config.php` (con las credenciales reales) **no se publica en el repositorio** por seguridad, así que no viaja con el clon. Debe crearse manualmente en la carpeta del proyecto usando como referencia los valores de la sección "Credenciales de base de datos" (por defecto: host=localhost, usuario=root, contraseña vacía, base=Tienda). Si el LAMPP local usa credenciales distintas, se ajustan en ese `config.php`.
 
 ### Paso 1: Iniciar los servicios
 
@@ -394,7 +387,7 @@ Para reiniciar la base de datos a su estado original basta repetir el mismo coma
 
 ## 10. Credenciales de base de datos (LAMPP por defecto)
 
-Los valores por defecto del LAMPP se muestran a continuación. Se configuran en `config.php` (creado localmente a partir de `plantilla_config.php`, ya que `config.php` no se incluye en el repositorio):
+Los valores por defecto del LAMPP se muestran a continuación. Se configuran en `config.php`, que **no se incluye en el repositorio** y debe crearse manualmente en cada máquina con estos valores:
 
 | Parámetro  | Valor     |
 | ---------- | --------- |

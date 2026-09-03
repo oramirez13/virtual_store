@@ -11,7 +11,7 @@ Thumbs.db
 *~
 
 # Credenciales de acceso a la base de datos: no se versionan.
-# Se mantiene plantilla_config.php como plantilla para crear config.php.
+# config.php se crea manualmente en cada maquina, fuera del repo.
 config.php
 
 # Archivo local con credenciales: no se versiona.
