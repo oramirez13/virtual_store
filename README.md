@@ -207,7 +207,7 @@ Característica común del catálogo: todas las camisetas son estampadas y de te
 El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli: instancia de `mysqli` con `mysqli_report()` (los fallos se lanzan como excepciones), consultas con `query()` o prepared statements y lectura con `fetch_assoc()`.
 
 ### config.php
-Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`. Por seguridad, **no se incluye en el repositorio** (está en `.gitignore`); se crea localmente en cada máquina tomando como referencia los valores por defecto de la sección "Credenciales de base de datos" de este documento.
+Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`. En este proyecto académico se mantiene como archivo de ejemplo con valores seguros y no reales, para evitar exponer credenciales dentro del repositorio. En un entorno local real, el archivo se puede ajustar con los valores del servidor MariaDB/LAMPP de cada máquina.
 
 ### conexion.php
 Carga las credenciales con `require 'config.php'` y crea la conexión con `new mysqli(host, usuario, contrasena, BD)` dentro de un `try`. Habilita `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)` para que cualquier fallo se lance como excepción. En el `catch (mysqli_sql_exception)` registra el detalle con `error_log()` y muestra un mensaje amigable al usuario.
