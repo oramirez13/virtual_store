@@ -73,7 +73,8 @@ tienda_virtual/
     ├── consulta_01.png           # Formulario de consultas
     ├── finalizar_compra_01.png   # Contenido del carrito con el total a pagar
     ├── finalizar_compra_02.png   # Resumen de la compra finalizada con el monto total
-    └── manejo_de_errores_01.png  # Ejemplo de manejo de errores
+    ├── manejo_de_errores_01.png  # Ejemplo de manejo de errores
+    └── php_error_log_01.png      # Log de errores de PHP con tail -f
 ```
 
 ## Requisitos previos
@@ -151,6 +152,10 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 **Captura del ejemplo de manejo de errores, con el mensaje mostrado al usuario cuando falla la consulta de un inventario.**
 
 ![manejo_de_errores_01](screenshots/manejo_de_errores_01.png)
+
+**Captura del log de errores de PHP, visto con el comando `tail -f` sobre el archivo del log.**
+
+![php_error_log_01](screenshots/php_error_log_01.png)
 
 ## Notas de seguridad aplicadas
 
