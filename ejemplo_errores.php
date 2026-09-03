@@ -78,11 +78,9 @@ try {
 // finally se ejecuta SIEMPRE, haya o no error.
 } finally {
 
-    // Muestra un mensaje indicando que el procesamiento terminó, junto a
-    // un enlace para regresar a la página principal de la tienda.
+    // Muestra un enlace para regresar a la página principal de la tienda.
     echo "<div style='font-family: sans-serif; text-align: center; margin-top: 1rem;
-          color: #6c757d;'>Finalizado
-          <br>
+          color: #6c757d;'>
           <a href='index.php' class='btn btn-outline-secondary btn-sm'
              style='margin-top: .75rem;'>&lt;= Regresar a la página principal</a>
           </div>";
