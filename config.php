@@ -4,6 +4,7 @@
 // código de conexión para centralizar su edición.
 // NOTA: este archivo no contiene las credenciales de acceso a 
 // la base de datos verdaderas, sino que usa valores de ejemplo.
+// Las credenciales reales son las de LAMPP/XAMPP por defecto
 
 // Servidor donde se ejecuta MariaDB (misma máquina con LAMPP)
 $host = "localhost";
