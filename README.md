@@ -68,11 +68,11 @@ tienda_virtual/
     ├── galeria_03.png            # Modal con la imagen ampliada de un producto
     ├── carrito_01.png            # Confirmación al agregar un producto
     ├── sesion_destruida_01.png   # Aviso de sesión destruida
-    ├── base_de_datos_01.png      # Base de datos con sus tablas
-    ├── base_de_datos_02.png      # Detalle de una tabla de la base de datos
+    ├── base_de_datos_01.png      # phpMyAdmin: consulta SELECT sobre la tabla Productos
+    ├── base_de_datos_02.png      # phpMyAdmin: filas de la tabla Productos
     ├── consulta_01.png           # Formulario de consultas
-    ├── finalizar_compra_01.png   # Resumen de la compra finalizada
-    ├── finalizar_compra_02.png   # Finalizar compra con el monto total
+    ├── finalizar_compra_01.png   # Contenido del carrito con el total a pagar
+    ├── finalizar_compra_02.png   # Resumen de la compra finalizada con el monto total
     └── manejo_de_errores_01.png  # Ejemplo de manejo de errores
 ```
 
@@ -128,11 +128,11 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![galeria_03](screenshots/galeria_03.png)
 
-**Muestra la base de datos con las tablas de la tienda.**
+**Muestra en phpMyAdmin la consulta SELECT sobre la tabla Productos.**
 
 ![base_de_datos_01](screenshots/base_de_datos_01.png)
 
-**Muestra el detalle de una tabla de la base de datos.**
+**Muestra en phpMyAdmin las filas (productos) de la tabla Productos.**
 
 ![base_de_datos_02](screenshots/base_de_datos_02.png)
 
@@ -140,7 +140,7 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![consulta_01](screenshots/consulta_01.png)
 
-**Captura del resumen del contenido del carrito de compras, que detalla los artículos por comprar.**
+**Captura del resumen del contenido del carrito de compras, que detalla los artículos por pagar.**
 
 ![finalizar_compra_01](screenshots/finalizar_compra_01.png)
 
