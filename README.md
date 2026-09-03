@@ -63,14 +63,18 @@ tienda_virtual/
 │   ├── camiseta_15.jpg
 │   └── icons8-shopping-cart-48.png  # Icono del carrito en la barra
 └── screenshots/        # Capturas de pantalla del sitio y de phpMyAdmin
-    ├── galeria_01.png  # Página principal de la tienda
-    ├── galeria_02.png  # Galería con 3 productos en el carrito
-    ├── galeria_03.png  # phpMyAdmin: lista de productos
-    ├── galeria_04.png  # phpMyAdmin: resultado de un SELECT
-    ├── galeria_05.png  # Modal con la imagen ampliada de un producto
-    ├── carrito_01.png  # Confirmación al agregar un producto
-    ├── carrito_02.png  # Contenido del carrito de compras
-    └── sesion_destruida_01.png  # Aviso de sesión destruida
+    ├── galeria_01.png            # Página principal de la tienda
+    ├── galeria_02.png            # Galería con 3 productos en el carrito
+    ├── galeria_03.png            # phpMyAdmin: lista de productos
+    ├── carrito_01.png            # Confirmación al agregar un producto
+    ├── carrito_02.png            # Contenido del carrito de compras
+    ├── sesion_destruida_01.png   # Aviso de sesión destruida
+    ├── base_de_datos_01.png      # Base de datos con sus tablas
+    ├── base_de_datos_02.png      # Detalle de una tabla de la base de datos
+    ├── consulta_01.png           # Formulario de consultas
+    ├── finalizar_compra_01.png   # Resumen de la compra finalizada
+    ├── finalizar_compra_02.png   # Finalizar compra con el monto total
+    └── manejo_de_errores_01.png  # Ejemplo de manejo de errores
 ```
 
 ## Requisitos previos
@@ -113,10 +117,6 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![galeria_02](screenshots/galeria_02.png)
 
-**Muestra el modal para agrandar la imagen seleccionada de un producto.**
-
-![galeria_05](screenshots/galeria_05.png)
-
 **Interfaz que muestra los productos agregados al carrito de compras, así como la cantidad de productos y las opciones "regresar a la galería" o "ver el carrito".**
 
 ![carrito_01](screenshots/carrito_01.png)
@@ -133,9 +133,13 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![galeria_03](screenshots/galeria_03.png)
 
-**Muestra el resultado de `SELECT * FROM Productos WHERE 1`.**
+**Muestra la base de datos con las tablas de la tienda.**
 
-![galeria_04](screenshots/galeria_04.png)
+![base_de_datos_01](screenshots/base_de_datos_01.png)
+
+**Muestra el detalle de una tabla de la base de datos.**
+
+![base_de_datos_02](screenshots/base_de_datos_02.png)
 
 **Captura del formulario de consultas, que recoge el nombre, teléfono, correo y detalle de la consulta del cliente.**
 
