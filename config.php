@@ -10,10 +10,10 @@
 $host = "localhost";
 
 // Usuario de la base de datos
-$usuario = "tu_usuario";
+$usuario = "usuario";
 
 // Contraseña del usuario (vacía por defecto en LAMPP)
-$contrasena = "tu_contrasena";
+$contrasena = "contrasena";
 
 // Nombre de la base de datos del proyecto
 $basedatos = "Tienda";
