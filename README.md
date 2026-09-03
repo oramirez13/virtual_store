@@ -137,6 +137,22 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![galeria_04](screenshots/galeria_04.png)
 
+**Captura del formulario de consultas, que recoge el nombre, teléfono, correo y detalle de la consulta del cliente.**
+
+![consulta_01](screenshots/consulta_01.png)
+
+**Captura del resumen de la compra al finalizarla, que detalla los artículos comprados.**
+
+![finalizar_compra_01](screenshots/finalizar_compra_01.png)
+
+**Captura adicional del proceso de finalizar compra, mostrando el monto total.**
+
+![finalizar_compra_02](screenshots/finalizar_compra_02.png)
+
+**Captura del ejemplo de manejo de errores, que muestra el mensaje amigable al usuario cuando falla la consulta de un inventario.**
+
+![manejo_de_errores_01](screenshots/manejo_de_errores_01.png)
+
 ## Notas de seguridad aplicadas
 
 - `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
