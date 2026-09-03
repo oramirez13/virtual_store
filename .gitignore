@@ -2,6 +2,9 @@
 .vscode/
 .idea/
 
+# Ignora archivos de configuracion local del proyecto
+config.php
+
 # Ignora archivos del sistema
 .DS_Store
 Thumbs.db
@@ -9,14 +12,4 @@ Thumbs.db
 # Ignora respaldos temporales
 *.bak
 *~
-
-# Credenciales de acceso a la base de datos: no se versionan.
-# config.php se crea manualmente en cada maquina, fuera del repo.
-config.php
-
-# Archivo local con credenciales: no se versiona.
-CREDENCIALES.txt
-
-# Guia local de replicacion: se mantiene local y no se versiona.
-REPLICACION.txt
 
