@@ -64,6 +64,7 @@ $cantidad = array_sum($conteo);
         <?php } ?>
           <!-- Cierra la sesión completa: borra la cookie y los datos
                guardados en el servidor -->
+          <a href="consulta.php" class="text-white text-decoration-none ms-3">Consultas</a>
           <a href="cerrar.php" class="text-white text-decoration-none ms-3">Cerrar sesión</a>
         </div>
       </div>

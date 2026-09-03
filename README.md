@@ -21,6 +21,10 @@ Aplica prácticas básicas de seguridad como **sanitización de salida** (escape
 - Página del carrito: consulta cada código en la base de datos, muestra miniaturas y total acumulado.
 - Botón "Vaciar carrito": borra solo el carrito con `unset($_SESSION['carrito'])`.
 - Enlace "Cerrar sesión": borra la cookie de sesión (con su path real) y ejecuta `session_destroy()`.
+- Formulario de consultas: el cliente envía nombre, teléfono, correo y detalle; los datos se almacenan en la tabla `Consultas` con consultas preparadas.
+- Finalizar compra: muestra el resumen de los artículos comprados y el monto total, y luego vacía el carrito.
+- Manejo de errores: las operaciones con la base de datos usan `try-catch`, registran el detalle en el log de Apache con `error_log()` y muestran un mensaje amigable al usuario.
+- Ejemplo de errores: página didáctica que intenta consultar una base de datos inexistente (`inventario_invierno`) y demuestra el manejo de excepciones.
 
 ## Tecnologías
 
@@ -39,9 +43,13 @@ tienda_virtual/
 ├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
 ├── agregar.php         # Receptora POST: valida el código y lo guarda en la sesión
 ├── carrito.php         # Visualiza todos los ítems del carrito y el total
+├── finalizar_compra.php# Muestra el resumen y monto total al finalizar la compra
+├── consulta.php        # Formulario de consultas del cliente
+├── guardar_consulta.php# Procesa y almacena la consulta en la tabla Consultas
+├── ejemplo_errores.php # Ejemplo didáctico de manejo de errores (BD inexistente)
 ├── vaciar.php          # Borra solo el carrito (unset)
 ├── cerrar.php          # Cierra la sesión completa (cookie + session_destroy)
-├── tienda.sql          # Script SQL: creación de tabla + 15 productos de prueba
+├── tienda.sql          # Script SQL: creación de tablas + 15 productos de prueba
 ├── README.md           # Este archivo
 ├── DOCUMENTACION.md    # Documentación técnica (arquitectura, flujo de datos, seguridad)
 ├── STEP-BY-STEP.md     # Guía paso a paso de instalación y entrega
@@ -134,9 +142,9 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 - `htmlspecialchars()` al imprimir datos de la BD (prevención de XSS).
 - Cast `(int)` del código recibido por POST antes de usarlo en una consulta.
 - Credenciales de la base de datos en `config.php`, fuera del código fuente.
-- Consultas preparadas (`prepare()` + `bind_param()`) en `agregar.php` y `carrito.php`: el valor viaja separado del SQL (previene inyección SQL).
+- Consultas preparadas (`prepare()` + `bind_param()`) en `agregar.php`, `carrito.php`, `finalizar_compra.php` y `guardar_consulta.php`: el valor viaja separado del SQL (previene inyección SQL).
 - `isset()` defensivo antes de leer `$_SESSION['carrito']`.
-- Verificación de errores de conexión (`connect_error`) y de consulta (`error`).
-- Las acciones que modifican datos (agregar, vaciar) se envían por POST.
+- Manejo de errores con `try-catch` y `error_log()`: el detalle técnico va al log de Apache; al usuario solo se le muestra un mensaje amigable.
+- Las acciones que modifican datos (agregar, vaciar, finalizar compra, guardar consulta) se envían por POST.
 - La conexión se cierra con `$conexion->close()` al terminar su uso.
 - Estilo orientado a objetos mysqli.

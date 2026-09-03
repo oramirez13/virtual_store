@@ -2,9 +2,10 @@
 -- Script SQL de la base de datos "Tienda"
 -- Motor: MariaDB (incluido en LAMPP)
 --
--- Crea la base de datos, la tabla "Productos" y 15 productos de
--- prueba. Las rutas de imagen son relativas, por lo que funcionan
--- sin importar la carpeta donde se publique el sitio.
+-- Crea la base de datos, la tabla "Productos" con 15 productos de
+-- prueba y la tabla "Consultas" para el formulario de consultas.
+-- Las rutas de imagen son relativas, por lo que funcionan sin
+-- importar la carpeta donde se publique el sitio.
 -- =============================================================
 
 -- Crea la base si no existe, para permitir volver a ejecutar el script
@@ -46,3 +47,27 @@ INSERT INTO Productos (codigo, nombre, detalle, imagen, precio) VALUES
 
 -- Consulta opcional para comprobar los datos insertados
 SELECT * FROM Productos;
+
+-- =============================================================
+-- Tabla "Consultas": almacena los mensajes enviados por los
+-- clientes desde el formulario de consultas.
+-- =============================================================
+
+-- Elimina la tabla si existiera antes de recrearla
+DROP TABLE IF EXISTS Consultas;
+
+-- Creación de la tabla "Consultas"
+CREATE TABLE Consultas (
+    id INT AUTO_INCREMENT PRIMARY KEY,  -- Identificador único de cada consulta (autoincremental)
+    nombre VARCHAR(100) NOT NULL,       -- Nombre del cliente que consulta
+    telefono VARCHAR(20),               -- Teléfono de contacto (opcional)
+    email VARCHAR(100) NOT NULL,        -- Correo electrónico del cliente
+    detalle TEXT NOT NULL,              -- Descripción del asunto de la consulta
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Fecha y hora de registro (automática)
+);
+
+-- =============================================================
+-- Nota: la base de datos "inventario_invierno" NO se crea aquí a
+-- propósito. El archivo ejemplo_errores.php intenta conectarse a
+-- ella, falla porque no existe, y demuestra el manejo de errores.
+-- =============================================================

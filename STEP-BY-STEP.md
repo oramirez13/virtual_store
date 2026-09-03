@@ -43,6 +43,7 @@ Opción B (manual): revisar el contenido del script comando por comando.
 ```sql
 USE Tienda;
 DESCRIBE Productos;       -- Muestra los 5 campos y sus tipos
+DESCRIBE Consultas;       -- Muestra los 6 campos de la tabla de consultas
 SELECT * FROM Productos;  -- Debe mostrar las 15 camisetas del catálogo
 ```
 
@@ -83,6 +84,12 @@ Lista de verificación visual:
 - [ ] "Vaciar carrito" borra el listado; el carrito queda vacío
 - [ ] "Cerrar sesión" muestra "Sesión destruida" y el carrito vuelve a estar vacío
 
+### Funcionalidades nuevas (Proyecto Final)
+- [ ] "Consultas" abre el formulario; al enviarlo se guarda en la tabla Consultas
+- [ ] En el formulario de consultas, un correo inválido se rechaza
+- [ ] "Finalizar compra" muestra el resumen de artículos y el monto total
+- [ ] Tras finalizar la compra, el carrito queda vacío
+
 ## Paso 5: Prueba de fallo controlado
 
 El sitio debe mostrar un mensaje claro si la base de datos no responde:
@@ -92,6 +99,25 @@ sudo /opt/lampp/lampp stopmysql
 # Recargar la página: debe verse un mensaje legible de error de conexión,
 # nunca una pantalla en blanco ni credenciales expuestas
 sudo /opt/lampp/lampp startmysql
+```
+
+### Ejemplo de manejo de errores (inventario de invierno)
+
+El archivo `ejemplo_errores.php` demuestra el manejo de errores con una base de
+datos que no existe (`inventario_invierno`). Al abrirlo:
+
+- Se intenta conectar a `inventario_invierno` y falla.
+- El error se registra en el log de Apache con `error_log()`.
+- Se muestra un mensaje amigable al usuario, sin detalle técnico.
+- El bloque `finally` indica que el procesamiento terminó.
+
+Para verlo: http://localhost/tienda_virtual/ejemplo_errores.php
+
+Para comprobar el registro en el log:
+
+```bash
+sudo tail -f /opt/lampp/logs/error_log
+# Recargar la página de ejemplo y ver la línea de error registrada
 ```
 
 ## Paso 6: Personalizar el catálogo

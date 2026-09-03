@@ -33,20 +33,20 @@ if(isset($_POST['codigo'])){
         // conexion.php a su vez carga las credenciales desde config.php
         include 'conexion.php';
 
-        // Prepared statement: la consulta se prepara con un marcador (?) y
-        // el valor se envía por separado al momento de ejecutarla. Así el
-        // dato nunca se interpreta como parte de la instrucción SQL.
-        $consulta = $conexion->prepare("SELECT nombre FROM Productos WHERE codigo = ?");
+        // El bloque try envuelve las operaciones con la base de datos.
+        try {
 
-        // Comprueba que la consulta se preparó sin errores
-        if($consulta == false){
-            $mensaje = "Error en la consulta: {$conexion->error}";
-        }else{
+            // Prepared statement: la consulta se prepara con un marcador (?)
+            // y el valor se envía por separado al momento de ejecutarla.
+            // Así el dato nunca se interpreta como parte del SQL.
+            $consulta = $conexion->prepare("SELECT nombre FROM Productos WHERE codigo = ?");
+
             // bind_param("i", $codigo): sustituye el (?) por el valor.
             // La "i" declara que el dato enviado es un entero (integer).
             $consulta->bind_param("i", $codigo);
 
-            // execute(): ejecuta la consulta ya preparada
+            // execute(): ejecuta la consulta ya preparada. Si falla,
+            // aquí se lanza un mysqli_sql_exception.
             $consulta->execute();
 
             // get_result(): obtiene el resultado como objeto mysqli_result
@@ -74,10 +74,20 @@ if(isset($_POST['codigo'])){
             }else{
                 $mensaje = "El producto solicitado no existe.";
             }
-        }
 
-        // Cierra la conexión cuando ya no se necesita
-        $conexion->close();
+            // Cierra la conexión cuando ya no se necesita
+            $conexion->close();
+
+        // catch captura únicamente los errores de MySQL.
+        } catch (mysqli_sql_exception $error) {
+
+            // error_log(): guarda el detalle técnico del error en la
+            // bitácora local (log de Apache).
+            error_log("Error al agregar el producto al carrito: " . $error->getMessage());
+
+            // Mensaje amigable para el usuario, sin detalle técnico interno.
+            $mensaje = "Ocurrió un error al agregar el producto. Intente más tarde.";
+        }
     }else{
         $mensaje = "El código recibido no es válido.";
     }

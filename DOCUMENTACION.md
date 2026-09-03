@@ -74,7 +74,9 @@ Separación de responsabilidades:
 
 ## 3. Base de datos
 
-Base: **Tienda** | Tabla: **Productos**
+Base: **Tienda** | Tablas: **Productos** y **Consultas**
+
+### Tabla Productos
 
 | Campo   | Tipo         | Restricción | Uso                                  |
 |---------|--------------|-------------|--------------------------------------|
@@ -84,8 +86,19 @@ Base: **Tienda** | Tabla: **Productos**
 | imagen  | VARCHAR(255) |             | URL de la foto (local o externa)     |
 | precio  | DOUBLE       |             | Precio con decimales                 |
 
+### Tabla Consultas
+
+| Campo    | Tipo          | Restricción                  | Uso                                   |
+|----------|---------------|------------------------------|---------------------------------------|
+| id       | INT           | AUTO_INCREMENT, PRIMARY KEY  | Identificador de cada consulta        |
+| nombre   | VARCHAR(100)  | NOT NULL                     | Nombre del cliente que consulta       |
+| telefono | VARCHAR(20)   |                              | Teléfono de contacto (opcional)       |
+| email    | VARCHAR(100)  | NOT NULL                     | Correo electrónico del cliente        |
+| detalle  | TEXT          | NOT NULL                     | Descripción del asunto de la consulta |
+| fecha    | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP    | Fecha y hora de registro (automática) |
+
 El script `tienda.sql` es idempotente: puede ejecutarse varias veces sin error,
-porque crea la BD solo si no existe (IF NOT EXISTS) y borra la tabla antes de
+porque crea la BD solo si no existe (IF NOT EXISTS) y borra cada tabla antes de
 crearla (DROP TABLE IF EXISTS).
 
 Política de precios del catálogo (solo 2 valores):
@@ -114,16 +127,17 @@ conexion.php con `require`.
 
 ### conexion.php
 Carga las credenciales con `require 'config.php'` y crea la conexión con
-`new mysqli(host, usuario, contrasena, BD)`. Valida con
-`$conexion->connect_error`: si no es null hubo fallo y se detiene la ejecución
-mostrando el motivo.
+`new mysqli(host, usuario, contrasena, BD)` dentro de un `try`. Habilita
+`mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)` para que cualquier
+fallo se lance como excepción. En el `catch (mysqli_sql_exception)` registra el
+detalle con `error_log()` y muestra un mensaje amigable al usuario.
 
 ### productos.php
-Ejecuta `SELECT * FROM Productos` con `$conexion->query()` (retorna un objeto
-mysqli_result). Valida con `$conexion->error != ''`. Recorre el resultado con
-el patrón estándar: `$resultado->fetch_assoc()` dentro de un `while` que
-termina cuando retorna null, acumulando cada fila en `$productos`. Cierra con
-`$conexion->close()`.
+Ejecuta `SELECT * FROM Productos` con `$conexion->query()` dentro de un `try`;
+si la consulta falla se captura la excepción y se registra con `error_log()`.
+Recorre el resultado con el patrón estándar: `$resultado->fetch_assoc()` dentro
+de un `while` que termina cuando retorna null, acumulando cada fila en
+`$productos`. Cierra con `$conexion->close()`.
 
 ### index.php
 Presentación. Incluye `productos.php` para obtener `$productos` y dibuja una
@@ -142,20 +156,49 @@ ya agregadas; `array_sum()` obtiene el total de ítems para el contador
 
 ### agregar.php
 Página receptora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero
-con `(int)` (un dato malicioso quedaría en 0 y se rechaza), verifica en la BD que
+con `(int)` (un dato malicioso quedaría en 0 y se rechaza) y verifica en la BD que
 el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i",
 $codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL
 y no puede inyectarse código. Este patrón es obligatorio cuando una consulta
-recibe datos provenientes del usuario. Solo entonces agrega el código al arreglo y lo guarda en
-`$_SESSION['carrito']`. Muestra una confirmación con el nombre agregado y el
-total acumulado.
+recibe datos provenientes del usuario. La operación va dentro de un `try-catch`
+que registra cualquier error en `error_log()`. Solo entonces agrega el código al
+arreglo y lo guarda en `$_SESSION['carrito']`. Muestra una confirmación con el
+nombre agregado y el total acumulado.
 
 ### carrito.php
 Reconstruye los ítems consultando la BD por cada código guardado con el mismo
 patrón de **prepared statement** (los códigos provienen de la sesión) y acumula el
-precio en `$total`. Si falla la preparación de alguna consulta, muestra un aviso y
-sale del bucle. Presenta la tabla con miniaturas, el total en `tfoot` y el botón
-"Vaciar carrito" (formulario POST). Si no hay ítems muestra un aviso.
+precio en `$total`. Las consultas van dentro de un `try-catch` que registra
+cualquier error en `error_log()`. Presenta la tabla con miniaturas, el total en
+`tfoot` y los botones "Finalizar compra" (POST a `finalizar_compra.php`) y
+"Vaciar carrito" (POST a `vaciar.php`). Si no hay ítems muestra un aviso.
+
+### finalizar_compra.php
+Reconstruye los ítems del carrito con el mismo patrón de prepared statement y
+muestra un resumen de la compra: tabla con los artículos y el monto total. Al
+confirmar, vacía el carrito con `unset($_SESSION['carrito'])` (no destruye la
+sesión). Las consultas se envuelven en `try-catch` con registro en `error_log()`.
+
+### consulta.php
+Presenta el formulario de consultas del cliente con los campos nombre, teléfono
+(opcional), correo y detalle. Incluye validación HTML5 (required y type="email").
+No procesa datos; los envía por POST a `guardar_consulta.php`.
+
+### guardar_consulta.php
+Página receptora del formulario de consultas. Valida que lleguen nombre, correo
+y detalle (con `isset()` y `trim()`), comprueba el formato del correo con
+`filter_var($email, FILTER_VALIDATE_EMAIL)` y almacena los datos en la tabla
+`Consultas` usando un **prepared statement** (`prepare()` + `bind_param("ssss", ...)`).
+La inserción va en un `try-catch` que registra el error en `error_log()`. Muestra
+un mensaje de éxito o de error según el caso.
+
+### ejemplo_errores.php
+Página didáctica de manejo de errores. Simula que un usuario consulta el
+inventario de invierno, pero se conecta a una base de datos inexistente
+(`inventario_invierno`). Con `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)`
+y un `try-catch (mysqli_sql_exception)` captura el error, lo registra con
+`error_log()` y muestra un mensaje amigable; el bloque `finally` se ejecuta
+siempre para indicar el fin del procesamiento.
 
 ### vaciar.php
 Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal
@@ -192,13 +235,13 @@ Interactividad del modal:
 |--------|-------|-------------------|
 | `htmlspecialchars()` en todo dato impreso | index.php | XSS (inyección de HTML/JS desde datos de la BD) |
 | Credenciales en config.php | conexion.php | Credenciales expuestas en el código fuente |
-| Prepared statements (prepare + bind_param) | agregar.php, carrito.php | Inyección SQL en consultas con datos del usuario/sesión |
-| Validación de conexión antes de usarla | conexion.php | Páginas rotas / fugas de información |
-| Validación del resultado de la consulta | productos.php | Errores silenciosos de SQL |
-| Cierre explícito de la conexión | productos.php | Agotamiento de recursos del servidor |
+| Prepared statements (prepare + bind_param) | agregar.php, carrito.php, finalizar_compra.php, guardar_consulta.php | Inyección SQL en consultas con datos del usuario/sesión |
+| Manejo de errores con try-catch + error_log | conexion/productos/agregar/carrito/finalizar/guardar | Errores silenciosos, fuga de información técnica |
+| Validación del formato de correo | guardar_consulta.php | Datos incorrectos en la base de datos |
+| Cierre explícito de la conexión | productos.php, etc. | Agotamiento de recursos del servidor |
 | Cast `(int)` del código recibido por POST | agregar.php | Inyección SQL / datos maliciosos en la sesión |
 | `isset()` defensivo antes de leer `$_SESSION` | index/agregar/carrito | Accidentes por llaves inexistentes |
-| Mensajes de error claros, sin credenciales | todos | Exposición de información sensible |
+| Mensajes de error claros, sin detalles técnicos | todos | Exposición de información sensible |
 
 ---
 

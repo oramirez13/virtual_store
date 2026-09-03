@@ -1,6 +1,7 @@
 <?php
-// carrito.php: página donde se visualizan todos los productos
-// almacenados en el carrito de la sesión.
+// finalizar_compra.php: muestra el detalle de los artículos que el
+// cliente compró y el monto total. Al finalizar, el carrito de la
+// sesión se vacía, como si la venta ya se hubiera completado.
 
 // Carga la sesión antes de cualquier salida
 session_start();
@@ -33,9 +34,9 @@ if(count($carrito) > 0){
             // (int): refuerza que el código sea un entero antes de la consulta
             $codigo = (int)$codigo;
 
-            // Prepared statement: mismo patrón que agregar.php. La consulta
-            // lleva un marcador (?) y el valor se envía por separado, de modo
-            // que la base nunca lo interpreta como parte del SQL.
+            // Prepared statement: la consulta lleva un marcador (?) y el
+            // valor se envía por separado, de modo que la base nunca lo
+            // interpreta como parte del SQL.
             $consulta = $conexion->prepare("SELECT * FROM Productos WHERE codigo = ?");
 
             // bind_param("i", $codigo): la "i" declara un dato entero
@@ -69,11 +70,20 @@ if(count($carrito) > 0){
 
         // error_log(): guarda el detalle técnico del error en la bitácora
         // local (log de Apache).
-        error_log("Error al consultar el carrito: " . $errorDetalle->getMessage());
+        error_log("Error al finalizar la compra: " . $errorDetalle->getMessage());
 
         // Mensaje amigable para el usuario, sin detalle técnico interno.
-        $error = "Ocurrió un error al consultar el carrito. Intente más tarde.";
+        $error = "Ocurrió un error al finalizar la compra. Intente más tarde.";
     }
+}
+
+// Si hay productos y no hubo error, se considera la compra completada
+// y se vacía el carrito de la sesión.
+if(count($items) > 0 && $error == ""){
+    // unset(): elimina la llave 'carrito' de la sesión. No se usa
+    // session_destroy() porque eso terminaría la sesión completa; aquí
+    // solo se limpia el carrito tras confirmar la compra.
+    unset($_SESSION['carrito']);
 }
 ?>
 <!doctype html>
@@ -81,7 +91,7 @@ if(count($carrito) > 0){
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carrito de compras - Tienda Virtual</title>
+    <title>Compra finalizada - Tienda Virtual</title>
 
     <!-- Framework CSS Bootstrap -->
     <link
@@ -93,69 +103,53 @@ if(count($carrito) > 0){
   </head>
 
   <body>
-    <div class="container mt-4">
-      <h1 class="mb-4">
-        <!-- Icono del carrito junto al título, mismo estilo que la barra -->
-        <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 28px;" class="me-2">
-        Carrito de Compras
-      </h1>
+    <div class="container mt-4" style="max-width: 640px;">
+      <h1 class="mb-4">Resumen de tu compra</h1>
 
       <?php if($error != ""){ ?>
         <!-- Mensaje de error amigable cuando falla la consulta -->
         <div class="alert alert-danger"><?php echo $error; ?></div>
-      <?php } ?>
-
-      <?php if(count($items) == 0){ ?>
+        <a href="index.php" class="btn btn-primary">Volver a la galería</a>
+      <?php } elseif(count($items) == 0){ ?>
         <!-- Aviso cuando no hay productos en el carrito -->
         <div class="alert alert-info">
-          Tu carrito está vacío. <a href="index.php">Ir a la galería</a>
+          Tu carrito estaba vacío, no hay compra que finalizar.
+          <a href="index.php">Ir a la galería</a>
         </div>
       <?php } else { ?>
-        <!-- Tabla de productos: una fila por cada unidad del carrito -->
+        <!-- Confirmación de que la compra fue registrada -->
+        <div class="alert alert-success">
+          ¡Gracias por tu compra! A continuación se detallan los artículos.
+        </div>
+
+        <!-- Tabla con los artículos comprados -->
         <table class="table table-striped align-middle">
           <thead class="table-dark">
             <tr>
-              <th></th>
               <th>Código</th>
               <th>Producto</th>
-              <th>Precio</th>
+              <th class="text-end">Precio</th>
             </tr>
           </thead>
           <tbody>
             <?php foreach($items as $item){ ?>
               <tr>
-                <td style="width: 80px;">
-                  <!-- Miniatura de la imagen del producto -->
-                  <img src="<?php echo htmlspecialchars($item['imagen']); ?>"
-                       alt="<?php echo htmlspecialchars($item['nombre']); ?>"
-                       class="img-thumbnail">
-                </td>
                 <td><?php echo htmlspecialchars($item['codigo']); ?></td>
                 <td><?php echo htmlspecialchars($item['nombre']); ?></td>
-                <td>&#8353; <?php echo number_format($item['precio'], 2); ?></td>
+                <td class="text-end">&#8353; <?php echo number_format($item['precio'], 2); ?></td>
               </tr>
             <?php } ?>
           </tbody>
-          <!-- Fila final con el total de todos los precios -->
           <tfoot>
             <tr>
-              <td colspan="3" class="text-end fw-bold">Total</td>
-              <td class="fw-bold text-success">&#8353; <?php echo number_format($total, 2); ?></td>
+              <td colspan="2" class="text-end fw-bold">Total</td>
+              <td class="text-end fw-bold text-success">&#8353; <?php echo number_format($total, 2); ?></td>
             </tr>
           </tfoot>
         </table>
 
-        <!-- Botones de acción del carrito.
-             "Finalizar compra" envía POST a finalizar_compra.php para ver
-             el resumen; "Vaciar carrito" envía POST a vaciar.php. Ambos
-             se envían por POST porque modifican el estado del carrito -->
-        <form method="post" action="finalizar_compra.php" class="d-inline">
-          <button type="submit" class="btn btn-success">Finalizar compra</button>
-        </form>
-        <form method="post" action="vaciar.php" class="d-inline">
-          <button type="submit" class="btn btn-danger">Vaciar carrito</button>
-        </form>
-        <a href="index.php" class="btn btn-outline-secondary">&lt;= Seguir comprando</a>
+        <!-- Enlace para volver a la galería -->
+        <a href="index.php" class="btn btn-primary">Volver a la galería</a>
       <?php } ?>
     </div>
   </body>
