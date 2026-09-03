@@ -61,28 +61,53 @@ try {
     // soporte, no el usuario final.
     error_log("Error al consultar el inventario de {$estacion}: " . $error->getMessage());
 
-    // Mensaje amigable para el usuario, sin mostrar el detalle técnico.
-    // Se personaliza con el nombre de la estación consultada.
-    $mensaje = "Ocurrió un problema al consultar el inventario de {$estacion}.
-                Intente nuevamente más tarde o contacte al administrador.";
-
-    // echo: se muestra el mensaje amigable en la página mediantestilos
-    // en línea (sin Bootstrap, para que el ejemplo sea autocontenido).
-    echo "<div style='font-family: sans-serif; color: #842029; background: #f8d7da;
-          border: 1px solid #f5c2c7; padding: 1rem; border-radius: .5rem; max-width: 480px;
-          margin: 2rem auto; text-align: center;'>
-          <h2>Error en el sistema</h2>
-          <p>{$mensaje}</p>
-          </div>";
+    // Mensaje de error amigable para el usuario, sin mostrar el detalle
+    // técnico. Se personaliza con el nombre de la estación consultada.
+    $mensajeError = "Ocurrió un problema al consultar el inventario de {$estacion}.
+                     Intente nuevamente más tarde o contacte al administrador.";
 
 // finally se ejecuta SIEMPRE, haya o no error.
 } finally {
 
-    // Muestra un enlace para regresar a la página principal de la tienda.
-    echo "<div style='font-family: sans-serif; text-align: center; margin-top: 1rem;
-          color: #6c757d;'>
-          <a href='index.php' class='btn btn-outline-secondary btn-sm'
-             style='margin-top: .75rem;'>&lt;= Regresar a la página principal</a>
-          </div>";
+    // Si no hubo error, $mensajeError está vacío y no se muestra nada.
+    $mensajeError = isset($mensajeError) ? $mensajeError : "";
 }
 ?>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manejo de errores - Tienda Virtual</title>
+
+    <!-- Framework CSS Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <div class="container mt-5" style="max-width: 480px;">
+
+      <?php if($mensajeError != ""){ ?>
+        <!-- Tarjeta que muestra el mensaje de error amigable -->
+        <div class="card shadow-sm border-danger">
+          <div class="card-body text-center">
+            <h1 class="h4 mb-3 text-danger">Error en el sistema</h1>
+            <p class="mb-4"><?php echo $mensajeError; ?></p>
+          </div>
+        </div>
+      <?php } ?>
+
+      <!-- Botón para volver a la página principal, con el mismo estilo
+           de botones secundarios que usa el resto del sitio -->
+      <div class="text-center mt-3">
+        <a href="index.php" class="btn btn-outline-secondary btn-sm">&lt;= Regresar a la página principal</a>
+      </div>
+
+    </div>
+  </body>
+</html>
