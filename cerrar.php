@@ -40,8 +40,7 @@ session_destroy();
       <!-- Confirmación del cierre de sesión -->
       <div class="card shadow-sm">
         <div class="card-body text-center">
-          <h1 class="h4 mb-3">Iniciar sesión</h1>
-          <p class="mb-3">La sesión se cerró y el carrito se vació.</p>
+          <h1 class="h4 mb-3">La sesión finalizó</h1>
 
           <!-- Opción de navegación para iniciar sesión de nuevo -->
           <a href="index.php" class="btn btn-primary btn-sm">Iniciar sesión</a>
