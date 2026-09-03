@@ -64,8 +64,8 @@ tienda_virtual/
 │   └── icons8-shopping-cart-48.png  # Icono del carrito en la barra
 └── screenshots/        # Capturas de pantalla del sitio y de phpMyAdmin
     ├── galeria_01.png            # Página principal de la tienda
-    ├── galeria_02.png            # Galería con 3 productos en el carrito
-    ├── galeria_03.png            # phpMyAdmin: lista de productos
+    ├── galeria_02.png            # Galería con 5 productos en el carrito
+    ├── galeria_03.png            # Modal con la imagen ampliada de un producto
     ├── carrito_01.png            # Confirmación al agregar un producto
     ├── carrito_02.png            # Contenido del carrito de compras
     ├── sesion_destruida_01.png   # Aviso de sesión destruida
@@ -113,7 +113,7 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![galeria_01](screenshots/galeria_01.png)
 
-**Muestra la misma página principal, pero con el carrito de compras con 3 productos agregados.**
+**Muestra la misma página principal, pero con el carrito de compras con 5 productos agregados.**
 
 ![galeria_02](screenshots/galeria_02.png)
 
@@ -129,7 +129,7 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![sesion_destruida_01](screenshots/sesion_destruida_01.png)
 
-**Muestra el dashboard de phpMyAdmin con la lista de productos.**
+**Muestra el modal con la imagen ampliada de un producto.**
 
 ![galeria_03](screenshots/galeria_03.png)
 
