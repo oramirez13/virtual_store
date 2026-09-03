@@ -67,7 +67,8 @@ CREATE TABLE Consultas (
 );
 
 -- =============================================================
--- Nota: la base de datos "inventario_invierno" NO se crea aquí a
--- propósito. El archivo ejemplo_errores.php intenta conectarse a
--- ella, falla porque no existe, y demuestra el manejo de errores.
+-- Nota: las bases de datos "inventario_verano" e "inventario_invierno"
+-- NO se crean aquí a propósito. El archivo ejemplo_errores.php intenta
+-- conectarse a una de ellas (según la estación), falla porque no
+-- existen, y demuestra el manejo de errores.
 -- =============================================================
