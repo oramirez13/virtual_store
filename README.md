@@ -67,7 +67,6 @@ tienda_virtual/
     ├── galeria_02.png            # Galería con 5 productos en el carrito
     ├── galeria_03.png            # Modal con la imagen ampliada de un producto
     ├── carrito_01.png            # Confirmación al agregar un producto
-    ├── carrito_02.png            # Contenido del carrito de compras
     ├── sesion_destruida_01.png   # Aviso de sesión destruida
     ├── base_de_datos_01.png      # Base de datos con sus tablas
     ├── base_de_datos_02.png      # Detalle de una tabla de la base de datos
@@ -121,10 +120,6 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![carrito_01](screenshots/carrito_01.png)
 
-**Muestra el contenido del carrito de compra.**
-
-![carrito_02](screenshots/carrito_02.png)
-
 **Muestra el aviso de sesión destruida y un botón para regresar a la galería.**
 
 ![sesion_destruida_01](screenshots/sesion_destruida_01.png)
@@ -145,15 +140,15 @@ Abrir en el navegador: <http://localhost/tienda_virtual/>
 
 ![consulta_01](screenshots/consulta_01.png)
 
-**Captura del resumen de la compra al finalizarla, que detalla los artículos comprados.**
+**Captura del resumen del contenido del carrito de compras, que detalla los artículos por comprar.**
 
 ![finalizar_compra_01](screenshots/finalizar_compra_01.png)
 
-**Captura adicional del proceso de finalizar compra, mostrando el monto total.**
+**Captura del proceso de finalizar compra, mostrando el monto total.**
 
 ![finalizar_compra_02](screenshots/finalizar_compra_02.png)
 
-**Captura del ejemplo de manejo de errores, que muestra el mensaje amigable al usuario cuando falla la consulta de un inventario.**
+**Captura del ejemplo de manejo de errores, con el mensaje mostrado al usuario cuando falla la consulta de un inventario.**
 
 ![manejo_de_errores_01](screenshots/manejo_de_errores_01.png)
 
