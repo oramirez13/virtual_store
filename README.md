@@ -35,7 +35,7 @@ Además, incorpora el formulario de **consultas** del cliente, la funcionalidad 
 - Insignia "En tu carrito (xN)" en las tarjetas cuyos productos ya fueron agregados.
 - Contador "Carrito (N)" en la barra superior que refleja los ítems acumulados.
 - Página del carrito: consulta cada código en la base de datos, muestra miniaturas y total acumulado.
-- Botón "Vaciar carrito": borra solo el carrito con `unset($_SESSION['carrito'])`.
+- Botón "Vaciar carrito": borra solo el carrito con `unset($_SESSION['carrito'])` y redirige automáticamente al carrito vacío.
 - Enlace "Cerrar sesión": borra la cookie de sesión (con su path real) y ejecuta `session_destroy()`.
 - **Formulario de consultas**: el cliente envía nombre, teléfono, correo y detalle; los datos se almacenan en la tabla `Consultas` con consultas preparadas.
 - **Finalizar compra**: muestra el resumen de los artículos comprados y el monto total, y luego vacía el carrito.
@@ -206,7 +206,7 @@ Presentación. Incluye `productos.php` para obtener `$productos` y dibuja una ta
 La primera instrucción es `session_start()`, antes de cualquier salida. Lee `$_SESSION['carrito']` con `isset()` y `array_count_values()` cuenta cuántas veces aparece cada código para la insignia "En tu carrito (xN)" en las tarjetas ya agregadas; `array_sum()` obtiene el total de ítems para el contador "Carrito (N)" de la barra. Incluye el enlace a `cerrar.php`.
 
 ### agregar.php
-Página receptora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero con `(int)` (un dato malicioso quedaría en 0 y se rechaza) y verifica en la base de datos que el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i", $codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL y no puede inyectarse código. Este patrón es obligatorio cuando una consulta recibe datos provenientes del usuario. La operación va dentro de un `try-catch` que registra cualquier error en `error_log()`. Solo entonces agrega el código al arreglo y lo guarda en `$_SESSION['carrito']`. Muestra una confirmación con el nombre agregado y el total acumulado.
+Página procesadora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero con `(int)` (un dato malicioso quedaría en 0 y se rechaza) y verifica en la base de datos que el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i", $codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL y no puede inyectarse código. Este patrón es obligatorio cuando una consulta recibe datos provenientes del usuario. La operación va dentro de un `try-catch` que registra cualquier error en `error_log()`. Solo entonces agrega el código al arreglo y lo guarda en `$_SESSION['carrito']`. Al terminar, guarda un **mensaje flash** en la sesión y redirige automáticamente a `index.php` con `header("Location: ...")` (patrón Post/Redirect/Get). La redirección incluye una **ancla** (`#producto-CODIGO`) que hace que la galería se posicione en la tarjeta del producto recién agregado, de modo que la página no sube al inicio y la alerta se muestra solo una vez en ese lugar.
 
 ### carrito.php
 Reconstruye los ítems consultando la base de datos por cada código guardado con el mismo patrón de **prepared statement** (los códigos provienen de la sesión) y acumula el precio en `$total`. Las consultas van dentro de un `try-catch` que registra cualquier error en `error_log()`. Presenta la tabla con miniaturas, el total en `tfoot` y los botones "Finalizar compra" (POST a `finalizar_compra.php`) y "Vaciar carrito" (POST a `vaciar.php`). Si no hay ítems muestra un aviso.
@@ -221,10 +221,10 @@ Presenta el formulario de consultas del cliente con los campos nombre, teléfono
 Página receptora del formulario de consultas. Valida que lleguen nombre, correo y detalle (con `isset()` y `trim()`), comprueba el formato del correo con `filter_var($email, FILTER_VALIDATE_EMAIL)` y almacena los datos en la tabla `Consultas` usando un **prepared statement** (`prepare()` + `bind_param("ssss", ...)`). La inserción va en un `try-catch` que registra el error en `error_log()`. Muestra un mensaje de éxito o de error según el caso.
 
 ### ejemplo_errores.php
-Página didáctica de manejo de errores. Lee el parámetro `estacion` por GET ("verano" o "invierno", con "invierno" por defecto) y selecciona la base de datos correspondiente (`inventario_verano` o `inventario_invierno`), ambas inexistentes. Con `mysqli_report()` y un `try-catch (mysqli_sql_exception)` captura el error, lo registra con `error_log()` (personalizado con la estación) y muestra un mensaje amigable; el bloque `finally` se ejecuta siempre para indicar el fin del procesamiento.
+Página didáctica de manejo de errores. Lee el parámetro `estacion` por GET ("verano" o "invierno", con "invierno" por defecto) y selecciona la base de datos correspondiente (`inventario_verano` o `inventario_invierno`), ambas inexistentes. Carga las credenciales desde `config.php` (no las repite en el código) y, con `mysqli_report()` y un `try-catch (mysqli_sql_exception)`, captura el error de conexión, lo registra con `error_log()` (personalizado con la estación) y muestra un mensaje amigable; el bloque `finally` se ejecuta siempre para indicar el fin del procesamiento.
 
 ### vaciar.php
-Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal permanece viva, porque solo se descarta el carrito.
+Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal permanece viva, porque solo se descarta el carrito. Redirige automáticamente a `carrito.php` con `header("Location: ...")` (patrón Post/Redirect/Get); el aviso "Tu carrito está vacío" lo genera la propia página del carrito al comprobar que no quedan ítems.
 
 ### cerrar.php
 Cierra la sesión completa: `session_name()` obtiene el nombre de la cookie, `session_get_cookie_params()` sus atributos, `setcookie()` con fecha 1 y el mismo path fuerza su eliminación en el navegador, y `session_destroy()` borra los datos del archivo en el servidor.

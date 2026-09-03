@@ -22,6 +22,17 @@ if(isset($_SESSION['carrito'])){
 }
 // array_sum(): suma las cantidades para obtener el total de ítems
 $cantidad = array_sum($conteo);
+
+// Mensaje flash: si existe en la sesión, se copia a una variable local
+// y se borra de la sesión para que solo se muestre una vez.
+$flash = "";
+$flashTipo = "success";
+if(isset($_SESSION['flash'])){
+    $flash = $_SESSION['flash']['texto'];
+    $flashTipo = $_SESSION['flash']['tipo'];
+    // unset(): elimina el mensaje flash ya consumido de la sesión
+    unset($_SESSION['flash']);
+}
 ?>
 <!doctype html>
 <html lang="es">
@@ -75,6 +86,17 @@ $cantidad = array_sum($conteo);
       </div>
     </nav>
 
+    <?php if($flash != ""){ ?>
+      <!-- Alerta flotante de Bootstrap con el mensaje flash.
+           El color depende de $flashTipo (success/danger/warning) -->
+      <div class="container">
+        <div class="alert alert-<?php echo $flashTipo; ?> alert-dismissible fade show" role="alert">
+          <?php echo $flash; ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      </div>
+    <?php } ?>
+
     <div class="container">
       <h1 class="mb-4">Galería de Productos</h1>
 
@@ -93,8 +115,11 @@ $cantidad = array_sum($conteo);
             // number_format(): da formato al precio con 2 decimales
             $precio = number_format($producto['precio'], 2);
         ?>
-          <!-- Tarjeta: ancho completo en móvil y un tercio en computadora -->
-          <div class="col-12 col-md-4 mb-4">
+          <!-- Tarjeta: ancho completo en móvil y un tercio en computadora.
+               El id (producto-CODIGO) sirve de ancla: al agregar un producto,
+               agregar.php redirige a esta posición y el navegador se queda
+               en el lugar donde el usuario hizo clic -->
+          <div class="col-12 col-md-4 mb-4" id="producto-<?php echo $codigo; ?>">
             <div class="card h-100 shadow-sm">
               <!-- Foto del producto; al hacer clic, script.js abre el modal -->
               <img src="<?php echo $imagen; ?>" class="card-img-top img-producto" alt="<?php echo $nombre; ?>">

@@ -75,6 +75,17 @@ if(count($carrito) > 0){
         $error = "Ocurrió un error al consultar el carrito. Intente más tarde.";
     }
 }
+
+// Mensaje flash: si existe en la sesión, se copia a una variable local
+// y se borra de la sesión para que solo se muestre una vez.
+$flash = "";
+$flashTipo = "success";
+if(isset($_SESSION['flash'])){
+    $flash = $_SESSION['flash']['texto'];
+    $flashTipo = $_SESSION['flash']['tipo'];
+    // unset(): elimina el mensaje flash ya consumido de la sesión
+    unset($_SESSION['flash']);
+}
 ?>
 <!doctype html>
 <html lang="es">
@@ -99,6 +110,15 @@ if(count($carrito) > 0){
         <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 28px;" class="me-2">
         Carrito de Compras
       </h1>
+
+      <?php if($flash != ""){ ?>
+        <!-- Alerta de Bootstrap con el mensaje flash (ej. "carrito vaciado").
+             El color depende de $flashTipo (success/warning/danger) -->
+        <div class="alert alert-<?php echo $flashTipo; ?> alert-dismissible fade show" role="alert">
+          <?php echo $flash; ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      <?php } ?>
 
       <?php if($error != ""){ ?>
         <!-- Mensaje de error amigable cuando falla la consulta -->

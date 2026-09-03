@@ -10,6 +10,11 @@
 // tipo mysqli_sql_exception, capturable con try-catch.
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+// require 'config.php': trae las credenciales desde el archivo central
+// de configuración. Así no se repiten ni se dejan escritas en este
+// archivo de lógica (buena práctica: credenciales fuera del código).
+require 'config.php';
+
 // Lee la estación recibida por GET. Si no llega o es desconocida,
 // se usa "invierno" como valor por defecto.
 // isset() comprueba de forma defensiva antes de usar la variable.
@@ -32,9 +37,10 @@ $inventario = array();
 // El bloque try intenta las operaciones que podrían fallar.
 try {
 
-    // Intenta conectar a la base de datos de la estación elegida.
-    // Como no existe, new mysqli() lanza un mysqli_sql_exception.
-    $conexion = new mysqli("localhost", "root", "", $baseDatos);
+    // Intenta conectar a la base de datos de la estación elegida, usando
+    // las credenciales cargadas desde config.php. Solo el nombre de la
+    // base difiere: como no existe, new mysqli() lanza una excepción.
+    $conexion = new mysqli($host, $usuario, $contrasena, $baseDatos);
 
     // Si se llegara a conectar (no es el caso), cargaría una tabla
     // llamada Articulos con los productos de la temporada.
