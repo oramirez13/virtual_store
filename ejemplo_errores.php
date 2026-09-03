@@ -82,9 +82,9 @@ try {
     // un enlace para regresar a la página principal de la tienda.
     echo "<div style='font-family: sans-serif; text-align: center; margin-top: 1rem;
           color: #6c757d;'>Finalizado
-          <br><a href='index.php' style='display:inline-block; margin-top: .75rem;
-          padding: .5rem 1rem; color:#fff; background:#0d6efd; border-radius:.375rem;
-          text-decoration:none;'>Volver a la página principal</a>
+          <br>
+          <a href='index.php' class='btn btn-outline-secondary btn-sm'
+             style='margin-top: .75rem;'>&lt;= Regresar a la página principal</a>
           </div>";
 }
 ?>
