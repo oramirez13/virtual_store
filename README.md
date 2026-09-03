@@ -293,7 +293,7 @@ git clone https://github.com/oramirez13/tienda_virtual_camisetas_unix.git tienda
 cd tienda_virtual
 ```
 
-> El archivo `config.php` (con las credenciales reales) **no se publica en el repositorio** por seguridad, así que no viaja con el clon. Debe crearse manualmente en la carpeta del proyecto usando como referencia los valores de la sección "Credenciales de base de datos" (por defecto: host=localhost, usuario=root, contraseña vacía, base=Tienda). Si el LAMPP local usa credenciales distintas, se ajustan en ese `config.php`.
+> El archivo `config.php` **sí se incluye en el repositorio**, pero con valores de ejemplo y no reales, para evitar exponer credenciales sensibles. Antes de ejecutar el proyecto, edita ese archivo con los valores reales del entorno local de tu LAMPP/XAMPP, usando como referencia la sección "Credenciales de base de datos" (por defecto: host=localhost, usuario=root, contraseña vacía, base=Tienda). Si tu instalación usa otras credenciales, ajústalas allí.
 
 ### Paso 1: Iniciar los servicios
 
@@ -418,7 +418,7 @@ Para reiniciar la base de datos a su estado original basta repetir el mismo coma
 
 ## 10. Credenciales de base de datos (LAMPP por defecto)
 
-Los valores por defecto del LAMPP se muestran a continuación. Se configuran en `config.php`, que **no se incluye en el repositorio** y debe crearse manualmente en cada máquina con estos valores:
+Los valores por defecto del LAMPP se muestran a continuación. Se configuran en `config.php`, que **se incluye en el repositorio con valores de ejemplo** y debe editarse en cada máquina reemplazando `usuario` y `contrasena` por los valores reales del entorno local:
 
 | Parámetro  | Valor     |
 | ---------- | --------- |
@@ -431,17 +431,17 @@ Los valores por defecto del LAMPP se muestran a continuación. Se configuran en 
 
 ## 11. Seguridad aplicada
 
-| Medida                                                | Dónde                                                                | Riesgo que mitiga                                        |
-| ----------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- |
-| `htmlspecialchars()` en todo dato impreso             | index.php                                                            | XSS (inyección de HTML/JS desde datos de la BD)          |
-| Credenciales en config.php (fuera de git: .gitignore) | conexion.php                                                         | Credenciales expuestas en el repositorio o código fuente |
-| Prepared statements (prepare + bind_param)            | agregar.php, carrito.php, finalizar_compra.php, guardar_consulta.php | Inyección SQL en consultas con datos del usuario/sesión  |
-| Manejo de errores con try-catch + error_log           | conexion/productos/agregar/carrito/finalizar/guardar                 | Errores silenciosos, fuga de información técnica         |
-| Validación del formato de correo                      | guardar_consulta.php                                                 | Datos incorrectos en la base de datos                    |
-| Cierre explícito de la conexión                       | productos.php, etc.                                                  | Agotamiento de recursos del servidor                     |
-| Cast `(int)` del código recibido por POST             | agregar.php                                                          | Inyección SQL / datos maliciosos en la sesión            |
-| `isset()` defensivo antes de leer `$_SESSION`         | index/agregar/carrito                                                | Accidentes por llaves inexistentes                       |
-| Mensajes de error claros, sin detalles técnicos       | todos                                                                | Exposición de información sensible                       |
+| Medida                                                      | Dónde                                                                | Riesgo que mitiga                                        |
+| ----------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- |
+| `htmlspecialchars()` en todo dato impreso                   | index.php                                                            | XSS (inyección de HTML/JS desde datos de la BD)          |
+| Credenciales en config.php (archivo versionado con ejemplo) | conexion.php                                                         | Credenciales expuestas en el repositorio o código fuente |
+| Prepared statements (prepare + bind_param)                  | agregar.php, carrito.php, finalizar_compra.php, guardar_consulta.php | Inyección SQL en consultas con datos del usuario/sesión  |
+| Manejo de errores con try-catch + error_log                 | conexion/productos/agregar/carrito/finalizar/guardar                 | Errores silenciosos, fuga de información técnica         |
+| Validación del formato de correo                            | guardar_consulta.php                                                 | Datos incorrectos en la base de datos                    |
+| Cierre explícito de la conexión                             | productos.php, etc.                                                  | Agotamiento de recursos del servidor                     |
+| Cast `(int)` del código recibido por POST                   | agregar.php                                                          | Inyección SQL / datos maliciosos en la sesión            |
+| `isset()` defensivo antes de leer `$_SESSION`               | index/agregar/carrito                                                | Accidentes por llaves inexistentes                       |
+| Mensajes de error claros, sin detalles técnicos             | todos                                                                | Exposición de información sensible                       |
 
 Otras prácticas aplicadas:
 
