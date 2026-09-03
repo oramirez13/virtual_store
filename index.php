@@ -65,6 +65,11 @@ $cantidad = array_sum($conteo);
           <!-- Cierra la sesión completa: borra la cookie y los datos
                guardados en el servidor -->
           <a href="consulta.php" class="text-white text-decoration-none ms-3">Consultas</a>
+          <!-- Ejemplos de manejo de errores por estación: cada botón
+               consulta un inventario cuyo acceso falla y se muestra un
+               mensaje de error al usuario -->
+          <a href="ejemplo_errores.php?estacion=verano" class="text-white text-decoration-none ms-3">Verano</a>
+          <a href="ejemplo_errores.php?estacion=invierno" class="text-white text-decoration-none ms-3">Invierno</a>
           <a href="cerrar.php" class="text-white text-decoration-none ms-3">Cerrar sesión</a>
         </div>
       </div>

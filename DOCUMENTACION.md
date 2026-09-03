@@ -193,12 +193,13 @@ La inserción va en un `try-catch` que registra el error en `error_log()`. Muest
 un mensaje de éxito o de error según el caso.
 
 ### ejemplo_errores.php
-Página didáctica de manejo de errores. Simula que un usuario consulta el
-inventario de invierno, pero se conecta a una base de datos inexistente
-(`inventario_invierno`). Con `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)`
+Página didáctica de manejo de errores. Lee el parámetro `estacion` por GET
+("verano" o "invierno", con "invierno" por defecto) y selecciona la base de
+datos correspondiente (`inventario_verano` o `inventario_invierno`), ambas
+inexistentes. Con `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)`
 y un `try-catch (mysqli_sql_exception)` captura el error, lo registra con
-`error_log()` y muestra un mensaje amigable; el bloque `finally` se ejecuta
-siempre para indicar el fin del procesamiento.
+`error_log()` (personalizado con la estación) y muestra un mensaje amigable;
+el bloque `finally` se ejecuta siempre para indicar el fin del procesamiento.
 
 ### vaciar.php
 Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal

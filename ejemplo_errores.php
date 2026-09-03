@@ -1,32 +1,43 @@
 <?php
-// ejemplo_errores.php: ejemplo didáctico de manejo de errores.
-// Simula que un usuario busca datos dentro de un inventario de
-// invierno, pero la base de datos de ese inventario no existe.
-// El objetivo es demostrar cómo capturar el error, registrarlo
-// en la bitácora y mostrar al usuario un mensaje amigable, sin
-// revelar los detalles técnicos internos.
+// ejemplo_errores.php: página didáctica de manejo de errores.
+// Según el parámetro "estacion" que llega por GET, intenta consultar
+// el inventario de una temporada: "verano" o "invierno". Ninguna de
+// esas bases de datos existe, por lo que la conexión falla y se
+// demuestra el manejo de errores con try-catch, error_log() y finally.
 
-// Habilita el reporte de errores de MySQLi como excepciones. Esto
-// hace que cualquier fallo de conexión o consulta se lance como una
-// excepción de tipo mysqli_sql_exception, que podemos capturar con
-// try-catch en lugar de revisar error por error.
+// Habilita el reporte de errores de MySQLi como excepciones. Así
+// cualquier fallo de conexión o consulta se lanza como excepción de
+// tipo mysqli_sql_exception, capturable con try-catch.
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// Arreglo que contendrá el listado del inventario si todo va bien
+// Lee la estación recibida por GET. Si no llega o es desconocida,
+// se usa "invierno" como valor por defecto.
+// isset() comprueba de forma defensiva antes de usar la variable.
+$estacion = "invierno";
+if(isset($_GET['estacion']) && ($_GET['estacion'] == "verano" || $_GET['estacion'] == "invierno")){
+    $estacion = $_GET['estacion'];
+}
+
+// Nombre de la base de datos según la estación. Las bases no existen
+// en el servidor, por lo que la conexión provocará una excepción.
+if($estacion == "verano"){
+    $baseDatos = "inventario_verano";     // Base de datos del inventario de verano (inexistente)
+}else{
+    $baseDatos = "inventario_invierno";   // Base de datos del inventario de invierno (inexistente)
+}
+
+// Arreglo que contendría el listado del inventario si todo saliera bien
 $inventario = array();
 
-// El bloque try intenta ejecutar las operaciones que podrían fallar.
-// Si en cualquier punto se lanza una excepción, el código restante
-// del try se salta y pasa directamente al bloque catch.
+// El bloque try intenta las operaciones que podrían fallar.
 try {
 
-    // Se intenta conectar a la base de datos "inventario_invierno".
-    // Como esa base de datos no existe en el servidor, new mysqli()
-    // lanzará una excepción de tipo mysqli_sql_exception.
-    $conexion = new mysqli("localhost", "root", "", "inventario_invierno");
+    // Intenta conectar a la base de datos de la estación elegida.
+    // Como no existe, new mysqli() lanza un mysqli_sql_exception.
+    $conexion = new mysqli("localhost", "root", "", $baseDatos);
 
-    // Si se llegara a conectar (no es el caso), se cargaría el
-    // inventario desde una tabla llamada Articulos.
+    // Si se llegara a conectar (no es el caso), cargaría una tabla
+    // llamada Articulos con los productos de la temporada.
     $consulta = $conexion->prepare("SELECT * FROM Articulos");
     $consulta->execute();
     $resultado = $consulta->get_result();
@@ -42,21 +53,21 @@ try {
     // Se cierra la conexión a la base de datos
     $conexion->close();
 
-// catch captura la excepción lanzada. El tipo mysqli_sql_exception
-// solo captura los errores de MySQL; cualquier otra excepción pasaría
-// de largo, por eso va primero.
+// catch captura la excepción lanzada por MySQL.
 } catch (mysqli_sql_exception $error) {
 
-    // Se registra el detalle del error en la bitácora local (log de
-    // Apache). Aquí SÍ se guarda el motivo técnico completo, porque
-    // esta información la revisa el personal de soporte, no el usuario.
-    error_log("Error al consultar el inventario de invierno: " . $error->getMessage());
+    // Se registra el detalle técnico del error en la bitácora local
+    // (log de Apache). Esta información la revisa el personal de
+    // soporte, no el usuario final.
+    error_log("Error al consultar el inventario de {$estacion}: " . $error->getMessage());
 
-    // Mensaje amigable para el usuario, sin mostrar el detalle técnico
-    $mensaje = "Ocurrió un problema al consultar el inventario de invierno.
+    // Mensaje amigable para el usuario, sin mostrar el detalle técnico.
+    // Se personaliza con el nombre de la estación consultada.
+    $mensaje = "Ocurrió un problema al consultar el inventario de {$estacion}.
                 Intente nuevamente más tarde o contacte al administrador.";
 
-    // echo: se muestra el mensaje amigable en la página
+    // echo: se muestra el mensaje amigable en la página mediantestilos
+    // en línea (sin Bootstrap, para que el ejemplo sea autocontenido).
     echo "<div style='font-family: sans-serif; color: #842029; background: #f8d7da;
           border: 1px solid #f5c2c7; padding: 1rem; border-radius: .5rem; max-width: 480px;
           margin: 2rem auto; text-align: center;'>
@@ -65,8 +76,7 @@ try {
           <p style='font-size: .8rem; color: #6c757d;'>Se ha registrado el detalle en la bitácora.</p>
           </div>";
 
-// finally se ejecuta SIEMPRE, haya o no error. Sirve para tareas de
-// limpieza, como cerrar conexiones que pudieron quedar abiertas.
+// finally se ejecuta SIEMPRE, haya o no error.
 } finally {
 
     // Muestra un mensaje indicando que el procesamiento terminó

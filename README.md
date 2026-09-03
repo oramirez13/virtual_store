@@ -24,7 +24,7 @@ Aplica prácticas básicas de seguridad como **sanitización de salida** (escape
 - Formulario de consultas: el cliente envía nombre, teléfono, correo y detalle; los datos se almacenan en la tabla `Consultas` con consultas preparadas.
 - Finalizar compra: muestra el resumen de los artículos comprados y el monto total, y luego vacía el carrito.
 - Manejo de errores: las operaciones con la base de datos usan `try-catch`, registran el detalle en el log de Apache con `error_log()` y muestran un mensaje amigable al usuario.
-- Ejemplo de errores: página didáctica que intenta consultar una base de datos inexistente (`inventario_invierno`) y demuestra el manejo de excepciones.
+- Ejemplo de errores: botones "Verano" e "Invierno" que consultan inventarios inexistentes (`inventario_verano` / `inventario_invierno`) y demuestran el manejo de excepciones con mensajes de error para el usuario.
 
 ## Tecnologías
 
@@ -46,7 +46,7 @@ tienda_virtual/
 ├── finalizar_compra.php# Muestra el resumen y monto total al finalizar la compra
 ├── consulta.php        # Formulario de consultas del cliente
 ├── guardar_consulta.php# Procesa y almacena la consulta en la tabla Consultas
-├── ejemplo_errores.php # Ejemplo didáctico de manejo de errores (BD inexistente)
+├── ejemplo_errores.php # Ejemplo didáctico de manejo de errores (inventario verano/invierno)
 ├── vaciar.php          # Borra solo el carrito (unset)
 ├── cerrar.php          # Cierra la sesión completa (cookie + session_destroy)
 ├── tienda.sql          # Script SQL: creación de tablas + 15 productos de prueba

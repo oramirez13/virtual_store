@@ -101,23 +101,28 @@ sudo /opt/lampp/lampp stopmysql
 sudo /opt/lampp/lampp startmysql
 ```
 
-### Ejemplo de manejo de errores (inventario de invierno)
+### Ejemplo de manejo de errores (inventarios de verano e invierno)
 
-El archivo `ejemplo_errores.php` demuestra el manejo de errores con una base de
-datos que no existe (`inventario_invierno`). Al abrirlo:
+El archivo `ejemplo_errores.php` demuestra el manejo de errores consultando una
+base de datos que no existe. Se accede desde los botones "Verano" e "Invierno"
+del menú, que envían el parámetro `estacion` por GET:
 
-- Se intenta conectar a `inventario_invierno` y falla.
+- `ejemplo_errores.php?estacion=verano` intenta conectar a `inventario_verano`.
+- `ejemplo_errores.php?estacion=invierno` intenta conectar a `inventario_invierno`.
+
+En ambos casos:
+- La conexión a la BD inexistente falla.
 - El error se registra en el log de Apache con `error_log()`.
 - Se muestra un mensaje amigable al usuario, sin detalle técnico.
 - El bloque `finally` indica que el procesamiento terminó.
 
-Para verlo: http://localhost/tienda_virtual/ejemplo_errores.php
+Para verlo: http://localhost/tienda_virtual/ejemplo_errores.php?estacion=verano
 
 Para comprobar el registro en el log:
 
 ```bash
-sudo tail -f /opt/lampp/logs/error_log
-# Recargar la página de ejemplo y ver la línea de error registrada
+sudo tail -f /opt/lampp/logs/php_error_log
+# Abrir un botón (Verano o Invierno) y ver la línea de error registrada
 ```
 
 ## Paso 6: Personalizar el catálogo
