@@ -41,7 +41,7 @@ session_destroy();
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <h1 class="h4 mb-3">Iniciar sesión</h1>
-          <p class="mb-3">La sesión se cerró y el carrito se vació. Para iniciar una nueva sesión, ingrese a la tienda.</p>
+          <p class="mb-3">La sesión se cerró y el carrito se vació.</p>
 
           <!-- Opción de navegación para iniciar sesión de nuevo -->
           <a href="index.php" class="btn btn-primary btn-sm">Iniciar sesión</a>
