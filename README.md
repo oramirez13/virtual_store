@@ -11,6 +11,23 @@ Se aplican prácticas básicas de seguridad como la sanitización de salida (esc
 
 ---
 
+## Índice
+
+- [1. Descripción general](#1-descripción-general)
+- [2. Funcionalidades](#2-funcionalidades)
+- [3. Tecnologías](#3-tecnologías)
+- [4. Estructura del proyecto](#4-estructura-del-proyecto)
+- [5. Flujo de datos de la aplicación](#5-flujo-de-datos-de-la-aplicación)
+- [6. Base de datos](#6-base-de-datos)
+- [7. Descripción archivo por archivo](#7-descripción-archivo-por-archivo)
+- [8. Requisitos previos](#8-requisitos-previos)
+- [9. Instalación y ejecución](#9-instalación-y-ejecución)
+- [10. Credenciales de base de datos (LAMPP por defecto)](#10-credenciales-de-base-de-datos-lampp-por-defecto)
+- [11. Seguridad aplicada](#11-seguridad-aplicada)
+- [12. Capturas de pantalla](#12-capturas-de-pantalla)
+
+---
+
 ## 1. Descripción general
 
 La aplicación web muestra un catálogo de 15 camisetas almacenadas en una base de datos MySQL/MariaDB y gestiona un carrito de compras mediante sesiones de PHP. El usuario visualiza los productos en una galería de tarjetas, puede ampliar cualquier imagen con un clic (modal) y agregar productos al carrito, cuyo contenido se conserva en `$_SESSION`.
