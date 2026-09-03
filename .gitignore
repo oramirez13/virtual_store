@@ -14,6 +14,9 @@ Thumbs.db
 # Se mantiene plantilla_config.php como plantilla para crear config.php.
 config.php
 
+# Archivo local con credenciales: no se versiona.
+CREDENCIALES.txt
+
 # Guia local de replicacion: se mantiene local y no se versiona.
 REPLICACION.txt
 
