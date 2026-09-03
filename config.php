@@ -2,7 +2,8 @@
 // config.php: archivo de configuración con los datos de acceso
 // a la base de datos. Mantiene las credenciales separadas del
 // código de conexión para centralizar su edición.
-// NOTA: este archivo no contiene las credenciales de acceso a la base de datos verdaderas
+// NOTA: este archivo no contiene las credenciales de acceso a 
+// la base de datos verdaderas, sino que usa valores de ejemplo.
 
 // Servidor donde se ejecuta MariaDB (misma máquina con LAMPP)
 $host = "localhost";
