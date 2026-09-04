@@ -287,7 +287,7 @@ Interactividad del modal:
 
 ```bash
 # Clona el repositorio en la carpeta deseada
-git clone https://github.com/oramirez13/tienda_virtual_camisetas_unix.git tienda_virtual
+git clone https://github.com/oramirez13/tienda_virtual.git tienda_virtual
 
 # Acceso a la carpeta del proyecto
 cd tienda_virtual
