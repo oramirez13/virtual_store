@@ -358,7 +358,7 @@ Lista de verificación visual:
 - [ ] La tarjeta agregada muestra la insignia "En tu carrito (xN)".
 - [ ] "Carrito" lista todos los ítems con miniatura y el total sumado.
 - [ ] "Vaciar carrito" borra el listado; el carrito queda vacío.
-- [ ] "Cerrar sesión" cierra la sesión y permite "Iniciar sesión" de nuevo, con el carrito vacío.
+- [ ] "Cerrar sesión" muestra el aviso "La sesión finalizó" con el botón "Iniciar sesión" y deja el carrito vacío.
 
 Funcionalidades adicionales:
 
