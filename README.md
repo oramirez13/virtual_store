@@ -51,7 +51,8 @@ Además, incorpora el formulario de **consultas** del cliente, la funcionalidad 
 - Botón "Agregar al carrito" por tarjeta: valida el producto en la base de datos y lo guarda como arreglo de códigos en `$_SESSION['carrito']`.
 - Insignia "En tu carrito (xN)" en las tarjetas cuyos productos ya fueron agregados.
 - Contador "Carrito (N)" en la barra superior que refleja los ítems acumulados.
-- Página del carrito: consulta cada código en la base de datos, muestra miniaturas y total acumulado.
+- Página del carrito: consulta cada código en la base de datos, muestra miniaturas, **cantidad de unidades** y subtotal por producto, y el total acumulado.
+- **Agrupación por cantidad**: si un producto se agrega varias veces, el carrito y el resumen lo muestran en **una sola fila con su cantidad** (por ejemplo, "Camiseta X  x3") en lugar de repetir filas idénticas. La lógica reutilizable vive en `funciones_carrito.php` (`armarItemsAgrupados()`), que usa `array_count_values()` para contar las unidades.
 - Botón "Vaciar carrito": borra solo el carrito con `unset($_SESSION['carrito'])` y redirige automáticamente al carrito vacío.
 - Enlace "Cerrar sesión": borra la cookie de sesión (con su path real) y ejecuta `session_destroy()`.
 - **Formulario de consultas**: el cliente envía nombre, teléfono, correo y detalle; los datos se almacenan en la tabla `Consultas` con consultas preparadas.
@@ -73,6 +74,8 @@ Además, incorpora el formulario de **consultas** del cliente, la funcionalidad 
 ```
 tienda_virtual/
 ├── conexion.php        # Abre y valida la conexión a MySQL/MariaDB usando config.php
+├── config.php          # Credenciales (leídas con getenv y valores de ejemplo como respaldo)
+├── funciones_carrito.php# Helper: agrupa los productos repetidos (cantidad y subtotal)
 ├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
 ├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
 ├── agregar.php         # Receptora POST: valida el código y lo guarda en la sesión
@@ -146,7 +149,8 @@ Galería (index.php) --POST codigo--> agregar.php
     |  valida (int) el código y consulta la BD
     v
 $_SESSION['carrito']  (arreglo de códigos, ej. [1, 4, 4])
-    |  -> carrito.php consulta la BD por cada código y suma el total
+    |  -> funciones_carrito.php  (arma los ítems agrupados: cantidad y subtotal)
+    |  -> carrito.php consulta la BD por cada código único y suma el total
     |  -> vaciar.php   unset($_SESSION['carrito'])  (solo el carrito)
     |  -> finalizar_compra.php  reconstruye los ítems, muestra el resumen y vacía el carrito
     v
@@ -155,9 +159,10 @@ cerrar.php  setcookie(expira) + session_destroy()  (sesión completa)
 
 Separación de responsabilidades:
 
-- `config.php`: solo las credenciales de la base de datos (host, usuario, contraseña, BD).
+- `config.php`: solo las credenciales de la base de datos (host, usuario, contraseña, BD), leídas con `getenv()` y con valores de ejemplo como respaldo.
 - `conexion.php`: solo abre (y valida) la conexión.
 - `productos.php`: solo consulta y organiza los datos en el arreglo `$productos`.
+- `funciones_carrito.php`: solo la lógica reutilizable del carrito (agrupa los códigos repetidos con su cantidad y subtotal).
 - `index.php`: solo presentación (HTML). No conoce credenciales ni SQL.
 
 ---
@@ -208,7 +213,18 @@ El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli: i
 
 ### config.php
 
-Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`. En este proyecto académico se mantiene como archivo de ejemplo con valores seguros y no reales, para evitar exponer credenciales dentro del repositorio. En un entorno local real, el archivo se puede ajustar con los valores del servidor MariaDB/LAMPP de cada máquina.
+Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`.
+
+Cada credencial se lee con `getenv()` desde las **variables de entorno** del sistema; si la variable no existe, el operador de fusión `? :` aplica un **valor de ejemplo seguro** como respaldo:
+
+```php
+$host       = getenv('DB_HOST')       ?: 'localhost';
+$usuario    = getenv('DB_USUARIO')    ?: 'usuario';
+$contrasena = getenv('DB_CONTRA')     ?: 'contrasena';
+$basedatos  = getenv('DB_BASEDATOS')  ?: 'Tienda';
+```
+
+De esta forma el repositorio no contiene credenciales reales (los valores de ejemplo no exponen datos), y en un entorno de producción las credenciales pueden inyectarse desde el exterior definiendo las variables `DB_HOST`, `DB_USUARIO`, `DB_CONTRA` y `DB_BASEDATOS`, sin modificar este archivo.
 
 ### conexion.php
 
@@ -228,13 +244,26 @@ La primera instrucción es `session_start()`, antes de cualquier salida. Lee `$_
 
 Página procesadora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero con `(int)` (un dato malicioso quedaría en 0 y se rechaza) y verifica en la base de datos que el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i", $codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL y no puede inyectarse código. Este patrón es obligatorio cuando una consulta recibe datos provenientes del usuario. La operación va dentro de un `try-catch` que registra cualquier error en `error_log()`. Solo entonces agrega el código al arreglo y lo guarda en `$_SESSION['carrito']`. Al terminar, guarda un **mensaje flash** en la sesión y redirige automáticamente a `index.php` con `header("Location: ...")` (patrón Post/Redirect/Get). La redirección incluye una **ancla** (`#producto-CODIGO`) que hace que la galería se posicione en la tarjeta del producto recién agregado, de modo que la página no sube al inicio y la alerta se muestra solo una vez en ese lugar.
 
+### funciones_carrito.php
+
+Archivo "helper" (de ayuda) con funciones reutilizables del carrito, para que `carrito.php` y `finalizar_compra.php` no dupliquen la misma lógica. Contiene una única función pública:
+
+- `armarItemsAgrupados($conexion, $carrito)`: recibe la conexión abierta y el arreglo de códigos de `$_SESSION['carrito']`, y devuelve un arreglo asociativo con tres llaves: `items` (productos consultados), `total` (suma de subtotales) y `error` (mensaje si falla la consulta).
+
+Cómo agrupa: `array_count_values($carrito)` cuenta cuántas veces aparece cada código, por ejemplo `[1, 4, 4]` se convierte en `[1 => 1, 4 => 2]`. Luego recorre cada código **distinto** con un `foreach` y, con el mismo patrón de **prepared statement** de las demás páginas, consulta el producto **una sola vez**. A cada fila le agrega dos llaves calculadas:
+
+- `cantidad`: las unidades del producto en el carrito (lo que antes se repetía en varias filas).
+- `subtotal`: `precio * cantidad`, y acumula ese subtotal en el `total`.
+
+Así, si el usuario agrega 3 veces el mismo producto, se muestra **una fila** con cantidad 3 y su subtotal, en lugar de 3 filas idénticas. El bloque `try-catch` registra los errores con `error_log()` y devuelve el mensaje en la llave `error`.
+
 ### carrito.php
 
-Reconstruye los ítems consultando la base de datos por cada código guardado con el mismo patrón de **prepared statement** (los códigos provienen de la sesión) y acumula el precio en `$total`. Las consultas van dentro de un `try-catch` que registra cualquier error en `error_log()`. Presenta la tabla con miniaturas, el total en `tfoot` y los botones "Finalizar compra" (POST a `finalizar_compra.php`) y "Vaciar carrito" (POST a `vaciar.php`). Si no hay ítems muestra un aviso.
+Carga `funciones_carrito.php` con `require` y llama a `armarItemsAgrupados($conexion, $carrito)` para reconstruir los ítems consultando la base de datos a través del helper (que maneja el `try-catch` y registra los errores con `error_log()`). Presenta la tabla con miniaturas, las columnas **Cantidad** y **Subtotal** por producto, y el total en `tfoot`. Si no hay ítems muestra un aviso. Los botones "Finalizar compra" (POST a `finalizar_compra.php`) y "Vaciar carrito" (POST a `vaciar.php`) cierran la vista.
 
 ### finalizar_compra.php
 
-Reconstruye los ítems del carrito con el mismo patrón de prepared statement y muestra un resumen de la compra: tabla con los artículos y el monto total. Al confirmar, vacía el carrito con `unset($_SESSION['carrito'])` (no destruye la sesión). Las consultas se envuelven en `try-catch` con registro en `error_log()`.
+Carga `funciones_carrito.php` con `require` y llama a `armarItemsAgrupados($conexion, $carrito)` para preparar el mismo resumen agrupado (cantidad y subtotal por producto). Presenta el detalle de la compra en una tabla con el monto total y, al confirmar, vacía el carrito con `unset($_SESSION['carrito'])` (no destruye la sesión). El manejo de errores queda dentro del helper, que registra en `error_log()` y devuelve el mensaje de error para mostrarlo al usuario.
 
 ### consulta.php
 
@@ -293,7 +322,7 @@ git clone https://github.com/oramirez13/tienda_virtual.git tienda_virtual
 cd tienda_virtual
 ```
 
-> El archivo `config.php` **sí se incluye en el repositorio**, pero con valores de ejemplo y no reales, para evitar exponer credenciales sensibles. Antes de ejecutar el proyecto, edita ese archivo con los valores reales del entorno local de tu LAMPP/XAMPP, usando como referencia la sección "Credenciales de base de datos" (por defecto: host=localhost, usuario=root, contraseña vacía, base=Tienda). Si tu instalación usa otras credenciales, ajústalas allí.
+> Las credenciales de la base de datos no forman parte del código: `config.php` las lee de las **variables de entorno** con `getenv()` y usa valores de ejemplo seguros como respaldo (ver sección [Credenciales de base de datos](#10-credenciales-de-base-de-datos-lampp-por-defecto)). Así el proyecto se ejecuta en cualquier máquina sin configuración, y las credenciales reales pueden definirse mediante `export DB_HOST=... DB_USUARIO=... DB_CONTRA=... DB_BASEDATOS=...` sin modificar archivos del repositorio.
 
 ### Paso 1: Iniciar los servicios
 
@@ -326,7 +355,7 @@ DESCRIBE Consultas;       -- Muestra los 6 campos de la tabla de consultas
 SELECT * FROM Productos;  -- Debe mostrar las 15 camisetas del catálogo
 ```
 
-> **Nota sobre las credenciales:** los datos de conexión (host, usuario, contraseña y base) viven en `config.php`, separados del código de conexión. Si el LAMPP usa una contraseña de root distinta, se debe editar en ese archivo antes de continuar.
+> **Nota sobre las credenciales:** los datos de conexión (host, usuario, contraseña y base) viven en `config.php`, que los lee del entorno con `getenv()`. Si el LAMPP usa una contraseña de root distinta, se definen las variables de entorno correspondientes (`DB_USUARIO`, `DB_CONTRA`) antes de iniciar Apache, o se ajustan los respaldos del propio `config.php`.
 
 ### Paso 3: Publicar el proyecto en LAMPP
 
@@ -356,7 +385,8 @@ Lista de verificación visual:
 - [ ] Al hacer clic en una imagen se abre ampliada en una ventana modal.
 - [ ] Al pulsar "Agregar al carrito" sale la confirmación y el contador sube.
 - [ ] La tarjeta agregada muestra la insignia "En tu carrito (xN)".
-- [ ] "Carrito" lista todos los ítems con miniatura y el total sumado.
+- [ ] "Carrito" lista todos los ítems con miniatura, cantidad de unidades y subtotal por producto, y el total sumado.
+- [ ] Si el mismo producto se agrega varias veces, el carrito lo muestra agrupado en una sola fila con su cantidad (no filas repetidas).
 - [ ] "Vaciar carrito" borra el listado; el carrito queda vacío.
 - [ ] "Cerrar sesión" muestra el aviso "La sesión finalizó" con el botón "Iniciar sesión" y deja el carrito vacío.
 
@@ -418,14 +448,25 @@ Para reiniciar la base de datos a su estado original basta repetir el mismo coma
 
 ## 10. Credenciales de base de datos (LAMPP por defecto)
 
-Los valores por defecto del LAMPP se muestran a continuación. Se configuran en `config.php`, que **se incluye en el repositorio con valores de ejemplo** y debe editarse en cada máquina reemplazando `usuario` y `contrasena` por los valores reales del entorno local:
+Las credenciales se configuran en `config.php`, que las lee del **entorno del sistema** con `getenv()` y aplica los valores por defecto mostrados abajo cuando una variable no está definida. Los valores por defecto del LAMPP/XAMPP son:
 
-| Parámetro  | Valor     |
-| ---------- | --------- |
-| Host       | localhost |
-| Usuario    | root      |
-| Contraseña | (vacía)   |
-| Base       | Tienda    |
+| Parámetro  | Valor     | Variable de entorno |
+| ---------- | --------- | ------------------- |
+| Host       | localhost | `DB_HOST`           |
+| Usuario    | root      | `DB_USUARIO`        |
+| Contraseña | (vacía)   | `DB_CONTRA`         |
+| Base       | Tienda    | `DB_BASEDATOS`      |
+
+Para un entorno de **producción**, las credenciales reales se definen como variables de entorno del servidor (fuera del código), por ejemplo:
+
+```bash
+export DB_HOST="localhost"
+export DB_USUARIO="root"
+export DB_CONTRA=""
+export DB_BASEDATOS="Tienda"
+```
+
+`config.php` retiene como respaldo sus valores de ejemplo seguros —que no son credenciales reales (usuario `usuario`, contraseña `contrasena`)—, de modo que el repositorio no expone información sensible. Para un desarrollo local en LAMPP/XAMPP (usuario `root`, contraseña vacía) basta definir las variables de entorno de la tabla anterior antes de arrancar Apache, sin editar ningún archivo del proyecto.
 
 ---
 
@@ -434,8 +475,8 @@ Los valores por defecto del LAMPP se muestran a continuación. Se configuran en 
 | Medida                                                      | Dónde                                                                | Riesgo que mitiga                                        |
 | ----------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- |
 | `htmlspecialchars()` en todo dato impreso                   | index.php                                                            | XSS (inyección de HTML/JS desde datos de la BD)          |
-| Credenciales en config.php (archivo versionado con ejemplo) | conexion.php                                                         | Credenciales expuestas en el repositorio o código fuente |
-| Prepared statements (prepare + bind_param)                  | agregar.php, carrito.php, finalizar_compra.php, guardar_consulta.php | Inyección SQL en consultas con datos del usuario/sesión  |
+| Credenciales fuera del código (getenv + valores de ejemplo) | config.php                                                           | Credenciales expuestas en el repositorio o código fuente |
+| Prepared statements (prepare + bind_param)                  | agregar.php, funciones_carrito.php, guardar_consulta.php             | Inyección SQL en consultas con datos del usuario/sesión  |
 | Manejo de errores con try-catch + error_log                 | conexion/productos/agregar/carrito/finalizar/guardar                 | Errores silenciosos, fuga de información técnica         |
 | Validación del formato de correo                            | guardar_consulta.php                                                 | Datos incorrectos en la base de datos                    |
 | Cierre explícito de la conexión                             | productos.php, etc.                                                  | Agotamiento de recursos del servidor                     |

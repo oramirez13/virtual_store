@@ -21,60 +21,31 @@ $total = 0;
 // Mensaje que se mostrará si ocurre un error
 $error = "";
 
-// Si hay productos en el carrito, consulta cada uno en la base de datos
+// require 'funciones_carrito.php': une el archivo con la función que
+// agrupa los productos repetidos. Se usa require porque este archivo
+// es indispensable para preparar el resumen de la compra.
+require 'funciones_carrito.php';
+
+// Si hay productos en el carrito, los reconstruye agrupados por código
 if(count($carrito) > 0){
+    // include 'conexion.php': incorpora la conexión abierta. Si la
+    // conexión fallara, ese archivo ya muestra el mensaje de error.
     include 'conexion.php';
 
-    // El bloque try envuelve las consultas con la base de datos.
-    try {
+    // armarItemsAgrupados($conexion, $carrito): llama a la función del
+    // archivo funciones_carrito.php. Cuenta cuántas veces aparece cada
+    // código, consulta cada producto una sola vez en la base de datos y
+    // calcula la cantidad y el subtotal de cada uno.
+    // Devuelve un arreglo asociativo con tres llaves: items, total y error.
+    $resultadoItems = armarItemsAgrupados($conexion, $carrito);
 
-        // Recorre los códigos guardados en la sesión, uno por uno
-        foreach($carrito as $codigo){
+    // Copia los tres resultados de la función a las variables locales
+    $items = $resultadoItems['items'];
+    $total = $resultadoItems['total'];
+    $error = $resultadoItems['error'];
 
-            // (int): refuerza que el código sea un entero antes de la consulta
-            $codigo = (int)$codigo;
-
-            // Prepared statement: la consulta lleva un marcador (?) y el
-            // valor se envía por separado, de modo que la base nunca lo
-            // interpreta como parte del SQL.
-            $consulta = $conexion->prepare("SELECT * FROM Productos WHERE codigo = ?");
-
-            // bind_param("i", $codigo): la "i" declara un dato entero
-            $consulta->bind_param("i", $codigo);
-
-            // execute(): ejecuta la consulta ya preparada. Si falla, aquí
-            // se lanza un mysqli_sql_exception.
-            $consulta->execute();
-
-            // get_result(): obtiene el resultado como objeto mysqli_result
-            $resultado = $consulta->get_result();
-
-            // fetch_assoc(): lee la primera fila (o null si no existe)
-            $fila = $resultado->fetch_assoc();
-
-            // Libera la consulta preparada
-            $consulta->close();
-
-            // Si el producto existe, se acumula en la lista y en el total
-            if($fila != null){
-                $items[] = $fila;
-                $total += $fila['precio'];
-            }
-        }
-
-        // Cierra la conexión cuando ya no se necesita
-        $conexion->close();
-
-    // catch captura únicamente los errores de MySQL.
-    } catch (mysqli_sql_exception $errorDetalle) {
-
-        // error_log(): guarda el detalle técnico del error en la bitácora
-        // local (log de Apache).
-        error_log("Error al finalizar la compra: " . $errorDetalle->getMessage());
-
-        // Mensaje amigable para el usuario, sin detalle técnico interno.
-        $error = "Ocurrió un error al finalizar la compra. Intente más tarde.";
-    }
+    // Cierra la conexión cuando ya no se necesita
+    $conexion->close();
 }
 
 // Si hay productos y no hubo error, se considera la compra completada
@@ -122,13 +93,16 @@ if(count($items) > 0 && $error == ""){
           ¡Gracias por tu compra! A continuación se detallan los artículos.
         </div>
 
-        <!-- Tabla con los artículos comprados -->
+        <!-- Tabla con los artículos comprados (una fila por producto,
+             agrupado por cantidad cuando se repite en el carrito) -->
         <table class="table table-striped align-middle">
           <thead class="table-dark">
             <tr>
               <th>Código</th>
               <th>Producto</th>
-              <th class="text-end">Precio</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Subtotal</th>
             </tr>
           </thead>
           <tbody>
@@ -136,13 +110,16 @@ if(count($items) > 0 && $error == ""){
               <tr>
                 <td><?php echo htmlspecialchars($item['codigo']); ?></td>
                 <td><?php echo htmlspecialchars($item['nombre']); ?></td>
-                <td class="text-end">&#8353; <?php echo number_format($item['precio'], 2); ?></td>
+                <td>&#8353; <?php echo number_format($item['precio'], 2); ?></td>
+                <td><?php echo $item['cantidad']; ?></td>
+                <td>&#8353; <?php echo number_format($item['subtotal'], 2); ?></td>
               </tr>
             <?php } ?>
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="2" class="text-end fw-bold">Total</td>
+              <td colspan="3" class="text-end fw-bold">Total</td>
+              <td></td>
               <td class="text-end fw-bold text-success">&#8353; <?php echo number_format($total, 2); ?></td>
             </tr>
           </tfoot>
