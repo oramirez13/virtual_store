@@ -2,6 +2,9 @@
 .vscode/
 .idea/
 
+# Variables de entorno del servidor (credenciales reales): NO se versionan
+.htaccess
+
 # Ignora archivos del sistema
 .DS_Store
 Thumbs.db

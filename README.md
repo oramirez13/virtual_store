@@ -215,14 +215,24 @@ El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli: i
 
 Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`.
 
-Cada credencial se lee con `getenv()` desde las **variables de entorno** del sistema; si la variable no existe, el operador de fusión `? :` aplica un **valor de ejemplo seguro** como respaldo:
+Cada credencial se lee con `getenv()` desde las **variables de entorno** del sistema; si la variable no existe, se aplica un **valor de ejemplo seguro** como respaldo:
 
 ```php
 $host       = getenv('DB_HOST')       ?: 'localhost';
-$usuario    = getenv('DB_USUARIO')    ?: 'usuario';
-$contrasena = getenv('DB_CONTRA')     ?: 'contrasena';
 $basedatos  = getenv('DB_BASEDATOS')  ?: 'Tienda';
+
+$usuario = getenv('DB_USUARIO');
+if ($usuario === false) {
+    $usuario = 'usuario';
+}
+
+$contrasena = getenv('DB_CONTRA');
+if ($contrasena === false) {
+    $contrasena = 'contrasena';
+}
 ```
+
+Detalle importante: **usuario y contraseña no usan el operador `?:`** porque en LAMPP la contraseña por defecto es vacía (`""`). El operador `?:` trata la cadena vacía como falsa y pondría el respaldo (`contrasena`), rompiendo la conexión. Con `getenv()` se compara la variable con `false` (que es lo que devuelve cuando no está definida), distinguiendo correctamente "no definida" de "definida pero vacía".
 
 De esta forma el repositorio no contiene credenciales reales (los valores de ejemplo no exponen datos), y en un entorno de producción las credenciales pueden inyectarse desde el exterior definiendo las variables `DB_HOST`, `DB_USUARIO`, `DB_CONTRA` y `DB_BASEDATOS`, sin modificar este archivo.
 
@@ -448,7 +458,7 @@ Para reiniciar la base de datos a su estado original basta repetir el mismo coma
 
 ## 10. Credenciales de base de datos (LAMPP por defecto)
 
-Las credenciales se configuran en `config.php`, que las lee del **entorno del sistema** con `getenv()` y aplica los valores por defecto mostrados abajo cuando una variable no está definida. Los valores por defecto del LAMPP/XAMPP son:
+Las credenciales se configuran en `config.php`, que las lee del **entorno del sistema** con `getenv()`. Los valores por defecto del LAMPP/XAMPP con los que el usuario suele conectar son:
 
 | Parámetro  | Valor     | Variable de entorno |
 | ---------- | --------- | ------------------- |
@@ -457,7 +467,21 @@ Las credenciales se configuran en `config.php`, que las lee del **entorno del si
 | Contraseña | (vacía)   | `DB_CONTRA`         |
 | Base       | Tienda    | `DB_BASEDATOS`      |
 
-Para un entorno de **producción**, las credenciales reales se definen como variables de entorno del servidor (fuera del código), por ejemplo:
+### Cómo se definen las variables de entorno en el entorno local
+
+La forma recomendada para este proyecto es un archivo **`.htaccess`** en la raíz (permitido porque LAMPP tiene `AllowOverride All` en htdocs). Contiene las variables con la directiva `SetEnv` y **no se versiona** (está en `.gitignore`), porque ahí viven las credenciales reales de cada máquina:
+
+```
+# Contenido del archivo .htaccess del proyecto (no se sube a git)
+SetEnv DB_HOST "localhost"
+SetEnv DB_USUARIO "root"
+SetEnv DB_CONTRA ""
+SetEnv DB_BASEDATOS "Tienda"
+```
+
+Apache lee el `.htaccess` en cada petición, por lo que **no es necesario reiniciar el servidor** al crearlo o modificarlo.
+
+Alternativa equivalente en la terminal (útil para entornos sin Apache o pruebas por CLI):
 
 ```bash
 export DB_HOST="localhost"
@@ -466,7 +490,7 @@ export DB_CONTRA=""
 export DB_BASEDATOS="Tienda"
 ```
 
-`config.php` retiene como respaldo sus valores de ejemplo seguros —que no son credenciales reales (usuario `usuario`, contraseña `contrasena`)—, de modo que el repositorio no expone información sensible. Para un desarrollo local en LAMPP/XAMPP (usuario `root`, contraseña vacía) basta definir las variables de entorno de la tabla anterior antes de arrancar Apache, sin editar ningún archivo del proyecto.
+`config.php` retiene como respaldo sus valores de ejemplo seguros —que no son credenciales reales (usuario `usuario`, contraseña `contrasena`)—, de modo que el repositorio no expone información sensible, y la conexión real se resuelve únicamente con las variables de entorno del servidor, sin editar ningún archivo del proyecto.
 
 ---
 
