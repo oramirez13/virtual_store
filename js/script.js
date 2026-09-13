@@ -1,35 +1,32 @@
-// ============================================================
-// script.js - JavaScript de la Tienda Virtual
-//
-// Función: al hacer clic en la foto de un producto se abre el
-// modal de Bootstrap con la imagen ampliada y su nombre.
-// ============================================================
+/* ============================================================
+   script.js - JavaScript for the Virtual Store
+   ============================================================ */
 
-// querySelectorAll(): obtiene todas las fotos de la galería
-var imagenes = document.querySelectorAll('.img-producto');
+// querySelectorAll(): gets all product photos in the gallery
+var images = document.querySelectorAll('.img-producto');
 
-// forEach(): ejecuta el bloque por cada imagen encontrada
-imagenes.forEach(function(imagen) {
+// forEach(): runs the block for each image found
+images.forEach(function(image) {
 
-    // addEventListener(): ejecuta la función al hacer clic
-    imagen.addEventListener('click', function() {
+    // addEventListener(): executes the function on click
+    image.addEventListener('click', function() {
 
-        // this: la imagen sobre la que se hizo clic
-        var imagenAmpliada = document.getElementById('imagenAmpliada');
+        // this: the image that was clicked
+        var enlargedImage = document.getElementById('enlargedImage');
 
-        // src: copia la URL de la foto original al modal
-        imagenAmpliada.src = this.src;
+        // src: copies the original photo URL to the modal
+        enlargedImage.src = this.src;
 
-        // alt: copia el nombre del producto como texto alternativo
-        imagenAmpliada.alt = this.alt;
+        // alt: copies the product name as alternative text
+        enlargedImage.alt = this.alt;
 
-        // textContent: coloca ese nombre como título del modal
-        document.getElementById('modalImagenTitulo').textContent = this.alt;
+        // textContent: places that name as the modal title
+        document.getElementById('imageModalTitle').textContent = this.alt;
 
-        // bootstrap.Modal: controla la ventana emergente de Bootstrap
-        var modal = new bootstrap.Modal(document.getElementById('modalImagen'));
+        // bootstrap.Modal: controls the Bootstrap modal window
+        var modal = new bootstrap.Modal(document.getElementById('imageModal'));
 
-        // show(): muestra el modal; se cierra con X, Esc o clic afuera
+        // show(): displays the modal; closes with X, Esc or outside click
         modal.show();
     });
 });

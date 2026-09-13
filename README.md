@@ -1,563 +1,563 @@
-# Tienda Virtual de Camisetas UNIX
+# UNIX T-Shirts Virtual Store
 
-**Tienda Virtual de Camisetas UNIX** es un proyecto académico desarrollado en **PHP 8** con **MySQL/MariaDB**, usando **Bootstrap 5.3.8** y **JavaScript** en el frontend.
+**UNIX T-Shirts Virtual Store** is an academic project developed in **PHP 8** with **MySQL/MariaDB**, using **Bootstrap 5.3.8** and **JavaScript** on the frontend.
 
-El funcionamiento de la aplicación se apoya en dos pilares:
+The application relies on two main pillars:
 
-- **Catálogo dinámico**: los productos (15 camisetas) se consultan desde la base de datos en MariaDB y se presentan en una galería de tarjetas.
-- **Carrito de compras**: persistido mediante sesiones de PHP (`$_SESSION`), lo que permite agregar productos, visualizar el carrito, vaciarlo y finalizar la compra.
+- **Dynamic catalog**: the products (15 t-shirts) are loaded from the MariaDB database and displayed in a card gallery.
+- **Shopping cart**: persisted through PHP sessions (`$_SESSION`), allowing the user to add products, view the cart, empty it and check out.
 
-Se aplican prácticas básicas de seguridad como la sanitización de salida (escape de datos con `htmlspecialchars()` contra XSS), consultas preparadas (prepared statements) en las consultas que reciben datos del usuario, y validación de entradas (casts y comprobaciones previas al uso de datos externos). Las credenciales de la base de datos residen en un archivo de configuración aparte (`config.php`).
-
----
-
-## Índice
-
-- [1. Descripción general](#1-descripción-general)
-- [2. Funcionalidades](#2-funcionalidades)
-- [3. Tecnologías](#3-tecnologías)
-- [4. Estructura del proyecto](#4-estructura-del-proyecto)
-- [5. Flujo de datos de la aplicación](#5-flujo-de-datos-de-la-aplicación)
-- [6. Base de datos](#6-base-de-datos)
-- [7. Descripción archivo por archivo](#7-descripción-archivo-por-archivo)
-- [8. Requisitos previos](#8-requisitos-previos)
-- [9. Instalación y ejecución](#9-instalación-y-ejecución)
-- [10. Credenciales de base de datos (LAMPP por defecto)](#10-credenciales-de-base-de-datos-lampp-por-defecto)
-- [11. Seguridad aplicada](#11-seguridad-aplicada)
-- [12. Capturas de pantalla](#12-capturas-de-pantalla)
+Basic security practices are applied, such as output sanitization (escaping data with `htmlspecialchars()` against XSS), prepared statements on queries that receive user data, and input validation (casts and checks before using external data). The database credentials live in a separate configuration file (`config.php`).
 
 ---
 
-## 1. Descripción general
+## Table of contents
 
-La aplicación web muestra un catálogo de 15 camisetas almacenadas en una base de datos MySQL/MariaDB y gestiona un carrito de compras mediante sesiones de PHP. El usuario visualiza los productos en una galería de tarjetas, puede ampliar cualquier imagen con un clic (modal) y agregar productos al carrito, cuyo contenido se conserva en `$_SESSION`.
+- [1. Overview](#1-overview)
+- [2. Features](#2-features)
+- [3. Technologies](#3-technologies)
+- [4. Project structure](#4-project-structure)
+- [5. Application data flow](#5-application-data-flow)
+- [6. Database](#6-database)
+- [7. File-by-file description](#7-file-by-file-description)
+- [8. Requirements](#8-requirements)
+- [9. Installation and execution](#9-installation-and-execution)
+- [10. Database credentials (LAMPP default)](#10-database-credentials-lampp-default)
+- [11. Security practices](#11-security-practices)
+- [12. Screenshots](#12-screenshots)
 
-Además, incorpora el formulario de **consultas** del cliente, la funcionalidad de **finalizar compra** y el **manejo de errores**.
+---
 
-| Capa           | Tecnología                                  |
+## 1. Overview
+
+The web application shows a catalog of 15 t-shirts stored in a MySQL/MariaDB database and manages a shopping cart through PHP sessions. The user views the products in a card gallery, can enlarge any image with a click (modal) and add products to the cart, whose contents are kept in `$_SESSION`.
+
+It also includes the customer **inquiry form**, the **checkout** feature and **error handling**.
+
+| Layer          | Technology                                  |
 | -------------- | ------------------------------------------- |
-| Servidor web   | Apache (incluido en LAMPP)                  |
-| Lenguaje       | PHP 8 (extensión mysqli y sesiones nativas) |
-| Base de datos  | MariaDB (incluida en LAMPP)                 |
-| Frontend       | HTML5 + Bootstrap 5.3.8 + CSS propio        |
-| Interactividad | JavaScript vanilla + Modal de Bootstrap     |
+| Web server     | Apache (included in LAMPP)                  |
+| Language       | PHP 8 (mysqli extension and native sessions)|
+| Database       | MariaDB (included in LAMPP)                 |
+| Frontend       | HTML5 + Bootstrap 5.3.8 + custom CSS        |
+| Interactivity  | Vanilla JavaScript + Bootstrap Modal        |
 
-## 2. Funcionalidades
+## 2. Features
 
-- Galería responsiva de 15 camisetas leídas desde MariaDB.
-- Clic sobre cualquier imagen: modal de Bootstrap con la foto ampliada, nombre del producto como título y botón X de cierre (también cierra con Esc o clic fuera).
-- Botón flotante "volver arriba" con desplazamiento suave (esquina inferior derecha).
-- Formato monetario del precio en colones.
-- Botón "Agregar al carrito" por tarjeta: valida el producto en la base de datos y lo guarda como arreglo de códigos en `$_SESSION['carrito']`.
-- Insignia "En tu carrito (xN)" en las tarjetas cuyos productos ya fueron agregados.
-- Contador "Carrito (N)" en la barra superior que refleja los ítems acumulados.
-- Página del carrito: consulta cada código en la base de datos, muestra miniaturas, **cantidad de unidades** y subtotal por producto, y el total acumulado.
-- **Agrupación por cantidad**: si un producto se agrega varias veces, el carrito y el resumen lo muestran en **una sola fila con su cantidad** (por ejemplo, "Camiseta X  x3") en lugar de repetir filas idénticas. La lógica reutilizable vive en `funciones_carrito.php` (`armarItemsAgrupados()`), que usa `array_count_values()` para contar las unidades.
-- Botón "Vaciar carrito": borra solo el carrito con `unset($_SESSION['carrito'])` y redirige automáticamente al carrito vacío.
-- Enlace "Cerrar sesión": borra la cookie de sesión (con su path real) y ejecuta `session_destroy()`.
-- **Formulario de consultas**: el cliente envía nombre, teléfono, correo y detalle; los datos se almacenan en la tabla `Consultas` con consultas preparadas.
-- **Finalizar compra**: muestra el resumen de los artículos comprados y el monto total, y luego vacía el carrito.
-- **Manejo de errores**: las operaciones con la base de datos usan `try-catch`, registran el detalle en el log de Apache con `error_log()` y muestran un mensaje amigable al usuario.
-- **Ejemplo de errores**: botones "Verano" e "Invierno" que consultan inventarios inexistentes (`inventario_verano` / `inventario_invierno`) y demuestran el manejo de excepciones con mensajes de error para el usuario.
+- Responsive gallery of 15 t-shirts loaded from MariaDB.
+- Click on any image: Bootstrap modal with the enlarged photo, product name as title and X close button (also closes with Esc or outside-click).
+- Floating "back to top" button with smooth scrolling (bottom-right corner).
+- Price formatting in Costa Rican colones.
+- "Add to cart" button per card: validates the product in the database and stores it as an array of codes in `$_SESSION['cart']`.
+- "In your cart (xN)" badge on cards whose products were already added.
+- "Cart (N)" counter in the top bar reflecting the accumulated items.
+- Cart page: queries each code in the database, shows thumbnails, **unit quantity** and subtotal per product, plus the accumulated total.
+- **Quantity grouping**: if a product is added multiple times, the cart and the summary show it in **a single row with its quantity** (for example, "T-Shirt X  x3") instead of repeating identical rows. The reusable logic lives in `cart_functions.php` (`buildGroupedCartItems()`), which uses `array_count_values()` to count the units.
+- "Empty cart" button: clears only the cart with `unset($_SESSION['cart'])` and automatically redirects to the empty cart.
+- "Log out" link: deletes the session cookie (with its real path) and runs `session_destroy()`.
+- **Inquiry form**: the customer sends name, phone, email and detail; the data is stored in the `Inquiries` table using prepared statements.
+- **Checkout**: shows the summary of the purchased items and the total amount, then empties the cart.
+- **Error handling**: database operations use `try-catch`, log the detail to the Apache log with `error_log()` and show a friendly message to the user.
+- **Error example**: "Summer" and "Winter" buttons that query non-existent inventories (`inventory_summer` / `inventory_winter`) and demonstrate exception handling with user-facing error messages.
 
-## 3. Tecnologías
+## 3. Technologies
 
-- PHP 8 (extensión mysqli y sesiones nativas)
-- MySQL/MariaDB (servidor LAMPP)
+- PHP 8 (mysqli extension and native sessions)
+- MySQL/MariaDB (LAMPP server)
 - HTML5 + Bootstrap 5.3.8
-- JavaScript (modal de imagen ampliada)
+- JavaScript (enlarged image modal)
 
 ---
 
-## 4. Estructura del proyecto
+## 4. Project structure
 
 ```
 tienda_virtual/
-├── conexion.php        # Abre y valida la conexión a MySQL/MariaDB usando config.php
-├── config.php          # Credenciales (leídas con getenv y valores de ejemplo como respaldo)
-├── funciones_carrito.php# Helper: agrupa los productos repetidos (cantidad y subtotal)
-├── productos.php       # Lógica de consulta: obtiene los productos en el arreglo $productos
-├── index.php           # Galería + formularios Agregar + insignias y contador de carrito
-├── agregar.php         # Receptora POST: valida el código y lo guarda en la sesión
-├── carrito.php         # Visualiza todos los ítems del carrito y el total
-├── finalizar_compra.php# Muestra el resumen y monto total al finalizar la compra
-├── consulta.php        # Formulario de consultas del cliente
-├── guardar_consulta.php# Procesa y almacena la consulta en la tabla Consultas
-├── ejemplo_errores.php # Ejemplo didáctico de manejo de errores (inventario verano/invierno)
-├── vaciar.php          # Borra solo el carrito (unset)
-├── cerrar.php          # Cierra la sesión completa (cookie + session_destroy)
-├── tienda.sql          # Script SQL: creación de tablas + 15 productos de prueba
-├── README.md           # Documentación general (este archivo)
+├── connection.php       # Opens and validates the MySQL/MariaDB connection using config.php
+├── config.php           # Credentials (read with getenv and example values as fallback)
+├── cart_functions.php   # Helper: groups repeated products (quantity and subtotal)
+├── products.php         # Query logic: gets the products into the $products array
+├── index.php            # Gallery + Add forms + badges and cart counter
+├── add_to_cart.php      # POST receiver: validates the code and saves it to the session
+├── cart.php             # Displays all cart items and the total
+├── checkout.php         # Shows the summary and total amount when checking out
+├── inquiry.php          # Customer inquiry form
+├── save_inquiry.php     # Processes and stores the inquiry in the Inquiries table
+├── error_example.php    # Educational error handling example (summer/winter inventory)
+├── clear_cart.php       # Clears only the cart (unset)
+├── logout.php           # Ends the complete session (cookie + session_destroy)
+├── store.sql            # SQL script: table creation + 15 sample products
+├── README.md            # General documentation (this file)
 ├── css/
-│   └── style.css       # Estilos propios complementarios a Bootstrap
+│   └── style.css        # Custom styles complementing Bootstrap
 ├── js/
-│   └── script.js       # JavaScript: apertura del modal al hacer clic en una imagen
-├── img/                # Imágenes locales de los productos
-│   ├── camiseta_01.jpg
+│   └── script.js        # JavaScript: opens the modal when clicking an image
+├── img/                 # Local product images
+│   ├── tshirt_01.jpg
 │   ├── ...
-│   ├── camiseta_15.jpg
-│   └── icons8-shopping-cart-48.png  # Icono del carrito en la barra
-└── screenshots/        # Capturas de pantalla del sitio y de phpMyAdmin
-    ├── galeria_01.png            # Página principal de la tienda
-    ├── galeria_02.png            # Galería con 5 productos en el carrito
-    ├── galeria_03.png            # Modal con la imagen ampliada de un producto
-    ├── sesion_finalizada_01.png  # Aviso mostrado al cerrar la sesión
-    ├── base_de_datos_01.png      # phpMyAdmin: consulta SELECT sobre la tabla Productos
-    ├── base_de_datos_02.png      # phpMyAdmin: filas de la tabla Productos
-    ├── consulta_01.png           # Formulario de consultas
-    ├── finalizar_compra_01.png   # Contenido del carrito con el total a pagar
-    ├── finalizar_compra_02.png   # Resumen de la compra finalizada con el monto total
-    ├── manejo_de_errores_01.png  # Ejemplo de manejo de errores
-    └── php_error_log_01.png      # Log de errores de PHP con tail -f
+│   ├── tshirt_15.jpg
+│   └── icons8-shopping-cart-48.png  # Cart icon in the top bar
+└── screenshots/         # Site and phpMyAdmin screenshots
+    ├── galeria_01.png            # Main store page
+    ├── galeria_02.png            # Gallery with 5 products in the cart
+    ├── galeria_03.png            # Modal with the enlarged product image
+    ├── sesion_finalizada_01.png  # Notice shown when logging out
+    ├── base_de_datos_01.png      # phpMyAdmin: SELECT query on the Products table
+    ├── base_de_datos_02.png      # phpMyAdmin: Products table rows
+    ├── consulta_01.png           # Inquiry form
+    ├── finalizar_compra_01.png   # Cart contents with the total to pay
+    ├── finalizar_compra_02.png   # Completed purchase summary with the total
+    ├── manejo_de_errores_01.png  # Error handling example
+    └── php_error_log_01.png      # PHP error log viewed with tail -f
 ```
 
 ---
 
-## 5. Flujo de datos de la aplicación
+## 5. Application data flow
 
 ```
-Navegador del usuario
+User browser
         |
-        | petición HTTP GET http://localhost/tienda_virtual/
+        | HTTP GET request http://localhost/tienda_virtual/
         v
-index.php  (presentación)
+index.php  (presentation)
         |
-        | include 'productos.php'
+        | include 'products.php'
         v
-productos.php  (lógica de consulta)
+products.php  (query logic)
         |
-        | include 'conexion.php'  ->  conexion.php hace require 'config.php'
+        | include 'connection.php'  ->  connection.php requires 'config.php'
         v
-config.php  (credenciales)  y  conexion.php  (abre la conexión mysqli)
+config.php  (credentials)  and  connection.php  (opens the mysqli connection)
         |
         | new mysqli()
         v
-MariaDB  ->  base de datos "Tienda"  ->  tabla "Productos"
+MariaDB  ->  "Store" database  ->  "Products" table
         |
-        | resultado: arreglo $productos (15 filas)
+        | result: $products array (15 rows)
         v
-index.php recorre $productos con foreach y genera las tarjetas HTML
+index.php iterates $products with foreach and generates the HTML cards
         |
         v
-Navegador renderiza la galería; script.js activa el modal al hacer clic
+Browser renders the gallery; script.js activates the modal on click
 ```
 
-Flujo del carrito (sesiones de PHP):
+Cart flow (PHP sessions):
 
 ```
-Galería (index.php) --POST codigo--> agregar.php
-    |  valida (int) el código y consulta la BD
+Gallery (index.php) --POST code--> add_to_cart.php
+    |  validates (int) the code and queries the DB
     v
-$_SESSION['carrito']  (arreglo de códigos, ej. [1, 4, 4])
-    |  -> funciones_carrito.php  (arma los ítems agrupados: cantidad y subtotal)
-    |  -> carrito.php consulta la BD por cada código único y suma el total
-    |  -> vaciar.php   unset($_SESSION['carrito'])  (solo el carrito)
-    |  -> finalizar_compra.php  reconstruye los ítems, muestra el resumen y vacía el carrito
+$_SESSION['cart']  (array of codes, e.g. [1, 4, 4])
+    |  -> cart_functions.php  (builds the grouped items: quantity and subtotal)
+    |  -> cart.php queries the DB for each unique code and sums the total
+    |  -> clear_cart.php   unset($_SESSION['cart'])  (cart only)
+    |  -> checkout.php  rebuilds the items, shows the summary and empties the cart
     v
-cerrar.php  setcookie(expira) + session_destroy()  (sesión completa)
+logout.php  setcookie(expired) + session_destroy()  (complete session)
 ```
 
-Separación de responsabilidades:
+Separation of responsibilities:
 
-- `config.php`: solo las credenciales de la base de datos (host, usuario, contraseña, BD), leídas con `getenv()` y con valores de ejemplo como respaldo.
-- `conexion.php`: solo abre (y valida) la conexión.
-- `productos.php`: solo consulta y organiza los datos en el arreglo `$productos`.
-- `funciones_carrito.php`: solo la lógica reutilizable del carrito (agrupa los códigos repetidos con su cantidad y subtotal).
-- `index.php`: solo presentación (HTML). No conoce credenciales ni SQL.
+- `config.php`: only the database credentials (host, user, password, DB), read with `getenv()` and example values as fallback.
+- `connection.php`: only opens (and validates) the connection.
+- `products.php`: only queries and organizes the data into the `$products` array.
+- `cart_functions.php`: only the reusable cart logic (groups repeated codes with quantity and subtotal).
+- `index.php`: only presentation (HTML). It knows neither credentials nor SQL.
 
 ---
 
-## 6. Base de datos
+## 6. Database
 
-Base: **Tienda** | Tablas: **Productos** y **Consultas**
+Database: **Store** | Tables: **Products** and **Inquiries**
 
-### Tabla Productos
+### Products table
 
-| Campo   | Tipo         | Restricción | Uso                              |
-| ------- | ------------ | ----------- | -------------------------------- |
-| codigo  | INT          | PRIMARY KEY | Identificador único del producto |
-| nombre  | VARCHAR(100) |             | Nombre comercial                 |
-| detalle | TEXT         |             | Descripción larga                |
-| imagen  | VARCHAR(255) |             | URL de la foto (local o externa) |
-| precio  | DOUBLE       |             | Precio con decimales             |
+| Field  | Type         | Constraint  | Use                                 |
+| ------ | ------------ | ----------- | ----------------------------------- |
+| code   | INT          | PRIMARY KEY | Unique product identifier           |
+| name   | VARCHAR(100) |             | Commercial name                     |
+| detail | TEXT         |             | Long description                    |
+| image  | VARCHAR(255) |             | Photo URL (local or external)       |
+| price  | DOUBLE       |             | Price with decimals                 |
 
-### Tabla Consultas
+### Inquiries table
 
-| Campo    | Tipo         | Restricción                 | Uso                                   |
-| -------- | ------------ | --------------------------- | ------------------------------------- |
-| id       | INT          | AUTO_INCREMENT, PRIMARY KEY | Identificador de cada consulta        |
-| nombre   | VARCHAR(100) | NOT NULL                    | Nombre del cliente que consulta       |
-| telefono | VARCHAR(20)  |                             | Teléfono de contacto (opcional)       |
-| email    | VARCHAR(100) | NOT NULL                    | Correo electrónico del cliente        |
-| detalle  | TEXT         | NOT NULL                    | Descripción del asunto de la consulta |
-| fecha    | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP   | Fecha y hora de registro (automática) |
+| Field  | Type         | Constraint                 | Use                                  |
+| ------ | ------------ | -------------------------- | ------------------------------------ |
+| id     | INT          | AUTO_INCREMENT, PRIMARY KEY | Identifier of each inquiry           |
+| name   | VARCHAR(100) | NOT NULL                   | Name of the inquiring customer       |
+| phone  | VARCHAR(20)  |                            | Contact phone (optional)             |
+| email  | VARCHAR(100) | NOT NULL                   | Customer email                       |
+| detail | TEXT         | NOT NULL                   | Description of the inquiry subject   |
+| date   | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP  | Registration date and time (automatic) |
 
-El script `tienda.sql` es idempotente: puede ejecutarse varias veces sin error, porque crea la base de datos solo si no existe (`IF NOT EXISTS`) y borra cada tabla antes de crearla (`DROP TABLE IF EXISTS`).
+The `store.sql` script is idempotent: it can be run several times without errors because it creates the database only if it does not exist (`IF NOT EXISTS`) and drops each table before recreating it (`DROP TABLE IF EXISTS`).
 
-Política de precios del catálogo (solo dos valores):
+Catalog pricing policy (only two values):
 
-- 8,500.00: camisetas de tonos claros o blancos (Gris Claro, Grafito y Salmón).
-- 12,500.00: camisetas de color (los productos más caros).
+- 8,500.00: t-shirts in light tones (Light Gray, Graphite and Salmon).
+- 12,500.00: colored t-shirts (the most expensive products).
 
-Regla que cumple: una camiseta blanca o de tono claro cuesta menos que una de color; el catálogo maneja únicamente esos dos precios.
+Rule met: a light-toned t-shirt costs less than a colored one; the catalog handles only those two prices.
 
-Característica común del catálogo: todas las camisetas son estampadas y de tela 100% algodón; las descripciones lo reflejan.
+Common catalog feature: all t-shirts are printed and made of 100% cotton; the descriptions reflect it.
 
-> **Nota**: las bases de datos `inventario_verano` e `inventario_invierno` no se crean a propósito. El archivo `ejemplo_errores.php` intenta conectarse a una de ellas (según la estación), falla porque no existen y demuestra el manejo de errores.
+> **Note**: the `inventory_summer` and `inventory_winter` databases are intentionally not created. The `error_example.php` file tries to connect to one of them (depending on the season), fails because they do not exist, and demonstrates error handling.
 
 ---
 
-## 7. Descripción archivo por archivo
+## 7. File-by-file description
 
-El acceso a datos sigue el estilo orientado a objetos de la extensión mysqli: instancia de `mysqli` con `mysqli_report()` (los fallos se lanzan como excepciones), consultas con `query()` o prepared statements y lectura con `fetch_assoc()`.
+The data access follows the object-oriented style of the mysqli extension: a `mysqli` instance with `mysqli_report()` (failures are thrown as exceptions), queries with `query()` or prepared statements, and row reading with `fetch_assoc()`.
 
 ### config.php
 
-Archivo de configuración separado con las cuatro credenciales (`$host`, `$usuario`, `$contrasena`, `$basedatos`). No contiene lógica: su único propósito es que la información de conexión no quede mezclada con el código. Se carga desde `conexion.php` con `require`.
+Separate configuration file with the four credentials (`$host`, `$user`, `$password`, `$database`). It contains no logic: its only purpose is to keep the connection information out of the code. It is loaded from `connection.php` with `require`.
 
-Cada credencial se lee con `getenv()` desde las **variables de entorno** del sistema; si la variable no existe, se aplica un **valor de ejemplo seguro** como respaldo:
+Each credential is read with `getenv()` from the system **environment variables**; if the variable does not exist, a **safe example value** is applied as a fallback:
 
 ```php
-$host       = getenv('DB_HOST')       ?: 'localhost';
-$basedatos  = getenv('DB_BASEDATOS')  ?: 'Tienda';
+$host      = getenv('DB_HOST')        ?: 'localhost';
+$database  = getenv('DB_NAME')        ?: 'Store';
 
-$usuario = getenv('DB_USUARIO');
-if ($usuario === false) {
-    $usuario = 'usuario';
+$user = getenv('DB_USER');
+if ($user === false) {
+    $user = 'user';
 }
 
-$contrasena = getenv('DB_CONTRA');
-if ($contrasena === false) {
-    $contrasena = 'contrasena';
+$password = getenv('DB_PASSWORD');
+if ($password === false) {
+    $password = 'password';
 }
 ```
 
-Detalle importante: **usuario y contraseña no usan el operador `?:`** porque en LAMPP la contraseña por defecto es vacía (`""`). El operador `?:` trata la cadena vacía como falsa y pondría el respaldo (`contrasena`), rompiendo la conexión. Con `getenv()` se compara la variable con `false` (que es lo que devuelve cuando no está definida), distinguiendo correctamente "no definida" de "definida pero vacía".
+Important detail: **user and password do not use the `?:` operator** because in LAMPP the default password is empty (`""`). The `?:` operator treats an empty string as falsy and would apply the fallback (`password`), breaking the connection. `getenv()` is compared against `false` (what it returns when the variable is not defined), correctly distinguishing "not defined" from "defined but empty".
 
-De esta forma el repositorio no contiene credenciales reales (los valores de ejemplo no exponen datos), y en un entorno de producción las credenciales pueden inyectarse desde el exterior definiendo las variables `DB_HOST`, `DB_USUARIO`, `DB_CONTRA` y `DB_BASEDATOS`, sin modificar este archivo.
+This way the repository does not contain real credentials (the example values expose no data), and in production the credentials can be injected externally by defining the `DB_HOST`, `DB_USER`, `DB_PASSWORD` and `DB_NAME` variables, without modifying this file.
 
-### conexion.php
+### connection.php
 
-Carga las credenciales con `require 'config.php'` y crea la conexión con `new mysqli(host, usuario, contrasena, BD)` dentro de un `try`. Habilita `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)` para que cualquier fallo se lance como excepción. En el `catch (mysqli_sql_exception)` registra el detalle con `error_log()` y muestra un mensaje amigable al usuario.
+Loads the credentials with `require 'config.php'` and creates the connection with `new mysqli(host, user, password, database)` inside a `try`. Enables `mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT)` so any failure is thrown as an exception. In the `catch (mysqli_sql_exception)` it logs the detail with `error_log()` and shows a friendly message to the user.
 
-### productos.php
+### products.php
 
-Ejecuta `SELECT * FROM Productos` con `$conexion->query()` dentro de un `try`; si la consulta falla se captura la excepción y se registra con `error_log()`. Recorre el resultado con el patrón estándar: `$resultado->fetch_assoc()` dentro de un `while` que termina cuando retorna `null`, acumulando cada fila en `$productos`. Cierra con `$conexion->close()`.
+Executes `SELECT * FROM Products` with `$connection->query()` inside a `try`; if the query fails, the exception is caught and logged with `error_log()`. Iterates the result with the standard pattern: `$result->fetch_assoc()` inside a `while` that stops when it returns `null`, accumulating each row into `$products`. Closes with `$connection->close()`.
 
 ### index.php
 
-Presentación. Incluye `productos.php` para obtener `$productos` y dibuja una tarjeta Bootstrap (`col-12 col-md-4`) por producto dentro de un `foreach`. Cada tarjeta contiene imagen (`card-img-top img-producto`), nombre, detalle, código interno y precio formateado con `number_format(valor, 2)` más el símbolo de colones. Al final del body incluye el HTML del modal `#modalImagen` (oculto) y carga Bootstrap bundle + `js/script.js`.
+Presentation. Includes `products.php` to obtain `$products` and draws a Bootstrap card (`col-12 col-md-4`) per product inside a `foreach`. Each card contains image (`card-img-top img-producto`), name, detail, internal code and price formatted with `number_format(value, 2)` plus the colones symbol. At the end of the body it includes the modal HTML `#imageModal` (hidden) and loads the Bootstrap bundle + `js/script.js`.
 
-La primera instrucción es `session_start()`, antes de cualquier salida. Lee `$_SESSION['carrito']` con `isset()` y `array_count_values()` cuenta cuántas veces aparece cada código para la insignia "En tu carrito (xN)" en las tarjetas ya agregadas; `array_sum()` obtiene el total de ítems para el contador "Carrito (N)" de la barra. Incluye el enlace a `cerrar.php`.
+Its first instruction is `session_start()`, before any output. It reads `$_SESSION['cart']` with `isset()` and `array_count_values()` counts how many times each code appears for the "In your cart (xN)" badge on already-added cards; `array_sum()` gets the total item count for the "Cart (N)" counter in the bar. It includes the link to `logout.php`.
 
-### agregar.php
+### add_to_cart.php
 
-Página procesadora del formulario. Valida `isset($_POST['codigo'])`, fuerza entero con `(int)` (un dato malicioso quedaría en 0 y se rechaza) y verifica en la base de datos que el producto exista usando un **prepared statement** (`prepare()` + `bind_param("i", $codigo)` + `execute()`). Así, el valor viaja por separado de la instrucción SQL y no puede inyectarse código. Este patrón es obligatorio cuando una consulta recibe datos provenientes del usuario. La operación va dentro de un `try-catch` que registra cualquier error en `error_log()`. Solo entonces agrega el código al arreglo y lo guarda en `$_SESSION['carrito']`. Al terminar, guarda un **mensaje flash** en la sesión y redirige automáticamente a `index.php` con `header("Location: ...")` (patrón Post/Redirect/Get). La redirección incluye una **ancla** (`#producto-CODIGO`) que hace que la galería se posicione en la tarjeta del producto recién agregado, de modo que la página no sube al inicio y la alerta se muestra solo una vez en ese lugar.
+Form processing page. Validates `isset($_POST['code'])`, forces an integer with `(int)` (malicious data would become 0 and be rejected) and verifies in the database that the product exists using a **prepared statement** (`prepare()` + `bind_param("i", $code)` + `execute()`). This way the value travels separately from the SQL statement and cannot inject code. This pattern is mandatory when a query receives user-provided data. The operation runs inside a `try-catch` that logs any error with `error_log()`. Only then the code is added to the array and stored in `$_SESSION['cart']`. When done, it stores a **flash message** in the session and automatically redirects to `index.php` with `header("Location: ...")` (Post/Redirect/Get pattern). The redirect includes an **anchor** (`#product-CODE`) that positions the gallery at the card of the just-added product, so the page does not scroll to the top and the alert shows only once in that place.
 
-### funciones_carrito.php
+### cart_functions.php
 
-Archivo "helper" (de ayuda) con funciones reutilizables del carrito, para que `carrito.php` y `finalizar_compra.php` no dupliquen la misma lógica. Contiene una única función pública:
+"Helper" file with reusable cart functions, so that `cart.php` and `checkout.php` do not duplicate the same logic. It contains a single public function:
 
-- `armarItemsAgrupados($conexion, $carrito)`: recibe la conexión abierta y el arreglo de códigos de `$_SESSION['carrito']`, y devuelve un arreglo asociativo con tres llaves: `items` (productos consultados), `total` (suma de subtotales) y `error` (mensaje si falla la consulta).
+- `buildGroupedCartItems($connection, $cart)`: receives the open connection and the code array from `$_SESSION['cart']`, and returns an associative array with three keys: `items` (queried products), `total` (sum of subtotals) and `error` (message if the query fails).
 
-Cómo agrupa: `array_count_values($carrito)` cuenta cuántas veces aparece cada código, por ejemplo `[1, 4, 4]` se convierte en `[1 => 1, 4 => 2]`. Luego recorre cada código **distinto** con un `foreach` y, con el mismo patrón de **prepared statement** de las demás páginas, consulta el producto **una sola vez**. A cada fila le agrega dos llaves calculadas:
+How it groups: `array_count_values($cart)` counts how many times each code appears, e.g. `[1, 4, 4]` becomes `[1 => 1, 4 => 2]`. Then it iterates each **distinct** code with a `foreach` and, using the same **prepared statement** pattern as the other pages, queries the product **only once**. To each row it adds two computed keys:
 
-- `cantidad`: las unidades del producto en el carrito (lo que antes se repetía en varias filas).
-- `subtotal`: `precio * cantidad`, y acumula ese subtotal en el `total`.
+- `quantity`: the units of the product in the cart (previously repeated in multiple rows).
+- `subtotal`: `price * quantity`, and accumulates that subtotal into the `total`.
 
-Así, si el usuario agrega 3 veces el mismo producto, se muestra **una fila** con cantidad 3 y su subtotal, en lugar de 3 filas idénticas. El bloque `try-catch` registra los errores con `error_log()` y devuelve el mensaje en la llave `error`.
+Thus, if the user adds the same product 3 times, **one row** with quantity 3 and its subtotal is shown instead of 3 identical rows. The `try-catch` block logs errors with `error_log()` and returns the message in the `error` key.
 
-### carrito.php
+### cart.php
 
-Carga `funciones_carrito.php` con `require` y llama a `armarItemsAgrupados($conexion, $carrito)` para reconstruir los ítems consultando la base de datos a través del helper (que maneja el `try-catch` y registra los errores con `error_log()`). Presenta la tabla con miniaturas, las columnas **Cantidad** y **Subtotal** por producto, y el total en `tfoot`. Si no hay ítems muestra un aviso. Los botones "Finalizar compra" (POST a `finalizar_compra.php`) y "Vaciar carrito" (POST a `vaciar.php`) cierran la vista.
+Loads `cart_functions.php` with `require` and calls `buildGroupedCartItems($connection, $cart)` to rebuild the items by querying the database through the helper (which handles the `try-catch` and logs errors with `error_log()`). Renders the table with thumbnails, the **Quantity** and **Subtotal** columns per product, and the total in the `tfoot`. If there are no items it shows a notice. The "Checkout" (POST to `checkout.php`) and "Empty cart" (POST to `clear_cart.php`) buttons close the view.
 
-### finalizar_compra.php
+### checkout.php
 
-Carga `funciones_carrito.php` con `require` y llama a `armarItemsAgrupados($conexion, $carrito)` para preparar el mismo resumen agrupado (cantidad y subtotal por producto). Presenta el detalle de la compra en una tabla con el monto total y, al confirmar, vacía el carrito con `unset($_SESSION['carrito'])` (no destruye la sesión). El manejo de errores queda dentro del helper, que registra en `error_log()` y devuelve el mensaje de error para mostrarlo al usuario.
+Loads `cart_functions.php` with `require` and calls `buildGroupedCartItems($connection, $cart)` to prepare the same grouped summary (quantity and subtotal per product). Renders the purchase detail in a table with the total amount and, on confirmation, empties the cart with `unset($_SESSION['cart'])` (it does not destroy the session). Error handling stays inside the helper, which logs with `error_log()` and returns the error message to display to the user.
 
-### consulta.php
+### inquiry.php
 
-Presenta el formulario de consultas del cliente con los campos nombre, teléfono (opcional), correo y detalle. Incluye validación HTML5 (`required` y `type="email"`). No procesa datos; los envía por POST a `guardar_consulta.php`.
+Renders the customer inquiry form with the fields name, phone (optional), email and detail. Includes HTML5 validation (`required` and `type="email"`). It processes no data; it sends it via POST to `save_inquiry.php`.
 
-### guardar_consulta.php
+### save_inquiry.php
 
-Página receptora del formulario de consultas. Valida que lleguen nombre, correo y detalle (con `isset()` y `trim()`), comprueba el formato del correo con `filter_var($email, FILTER_VALIDATE_EMAIL)` y almacena los datos en la tabla `Consultas` usando un **prepared statement** (`prepare()` + `bind_param("ssss", ...)`). La inserción va en un `try-catch` que registra el error en `error_log()`. Muestra un mensaje de éxito o de error según el caso.
+Receiver page of the inquiry form. Validates that name, email and detail arrived (with `isset()` and `trim()`), checks the email format with `filter_var($email, FILTER_VALIDATE_EMAIL)` and stores the data in the `Inquiries` table using a **prepared statement** (`prepare()` + `bind_param("ssss", ...)`). The insertion runs inside a `try-catch` that logs the error with `error_log()`. It shows a success or error message depending on the case.
 
-### ejemplo_errores.php
+### error_example.php
 
-Página didáctica de manejo de errores. Lee el parámetro `estacion` por GET ("verano" o "invierno", con "invierno" por defecto) y selecciona la base de datos correspondiente (`inventario_verano` o `inventario_invierno`), ambas inexistentes. Carga las credenciales desde `config.php` (no las repite en el código) y, con `mysqli_report()` y un `try-catch (mysqli_sql_exception)`, captura el error de conexión, lo registra con `error_log()` (personalizado con la estación) y muestra un mensaje amigable; el bloque `finally` se ejecuta siempre para indicar el fin del procesamiento.
+Educational error handling page. Reads the `season` parameter via GET ("summer" or "winter", with "winter" as default) and selects the corresponding database (`inventory_summer` or `inventory_winter`), both non-existent. Loads the credentials from `config.php` (does not repeat them in the code) and, with `mysqli_report()` and a `try-catch (mysqli_sql_exception)`, catches the connection error, logs it with `error_log()` (customized with the season) and shows a friendly message; the `finally` block always runs to mark the end of processing.
 
-### vaciar.php
+### clear_cart.php
 
-Borra solo una llave: `unset($_SESSION['carrito'])`. La sesión como tal permanece viva, porque solo se descarta el carrito. Redirige automáticamente a `carrito.php` con `header("Location: ...")` (patrón Post/Redirect/Get); el aviso "Tu carrito está vacío" lo genera la propia página del carrito al comprobar que no quedan ítems.
+Deletes only one key: `unset($_SESSION['cart'])`. The session itself stays alive because only the cart is discarded. Automatically redirects to `cart.php` with `header("Location: ...")` (Post/Redirect/Get pattern); the "Your cart is empty" notice is generated by the cart page itself when it checks that no items remain.
 
-### cerrar.php
+### logout.php
 
-Cierra la sesión completa: `session_name()` obtiene el nombre de la cookie, `session_get_cookie_params()` sus atributos, `setcookie()` con fecha 1 y el mismo path fuerza su eliminación en el navegador, y `session_destroy()` borra los datos del archivo en el servidor.
+Ends the complete session: `session_name()` gets the cookie name, `session_get_cookie_params()` its attributes, `setcookie()` with date 1 and the same path forces its removal in the browser, and `session_destroy()` deletes the data file on the server.
 
 ### css/style.css
 
-Complementa a Bootstrap (no lo duplica). Define:
+Complements Bootstrap (does not duplicate it). It defines:
 
-- `.img-producto`: altura fija de 260px, recorte centrado con `object-fit` y cursor pointer.
-- `.card:hover`: efecto de levantamiento con sombra animada.
-- `html { scroll-behavior: smooth }`: anima el desplazamiento del botón "volver arriba".
-- `.btn-volver-arriba`: forma circular del botón flotante (la posición fija la dan las utilidades de Bootstrap).
+- `.img-producto`: fixed 260px height, centered crop with `object-fit` and pointer cursor.
+- `.card:hover`: lift effect with animated shadow.
+- `html { scroll-behavior: smooth }`: animates the "back to top" button scrolling.
+- `.btn-volver-arriba`: circular shape of the floating button (the fixed position comes from Bootstrap utilities).
 
 ### js/script.js
 
-Interactividad del modal:
+Modal interactivity:
 
-1. `querySelectorAll('.img-producto')` obtiene todas las fotos de la galería.
-2. A cada una le agrega un evento `click`.
-3. Al hacer clic copia `src` y `alt` de la foto hacia el modal, coloca el nombre del producto como título y muestra la ventana con `new bootstrap.Modal(...).show()`.
-4. El cierre funciona por tres vías nativas de Bootstrap: botón X (`.btn-close`), tecla Esc y clic fuera del diálogo.
+1. `querySelectorAll('.img-producto')` gets all the gallery photos.
+2. A `click` event is added to each one.
+3. On click it copies `src` and `alt` from the photo to the modal, places the product name as title and shows the window with `new bootstrap.Modal(...).show()`.
+4. It closes through three native Bootstrap ways: X button (`.btn-close`), Esc key and outside-click.
 
 ---
 
-## 8. Requisitos previos
+## 8. Requirements
 
-- LAMPP/XAMPP instalado en `/opt/lampp`.
-- Apache y MariaDB funcionando.
+- LAMPP/XAMPP installed at `/opt/lampp`.
+- Apache and MariaDB running.
 
-## 9. Instalación y ejecución
+## 9. Installation and execution
 
-### Paso 0: Obtener el código
+### Step 0: Get the code
 
 ```bash
-# Clona el repositorio en la carpeta deseada
+# Clones the repository into the desired folder
 git clone https://github.com/oramirez13/tienda_virtual.git tienda_virtual
 
-# Acceso a la carpeta del proyecto
+# Access the project folder
 cd tienda_virtual
 ```
 
-> Las credenciales de la base de datos no forman parte del código: `config.php` las lee de las **variables de entorno** con `getenv()` y usa valores de ejemplo seguros como respaldo (ver sección [Credenciales de base de datos](#10-credenciales-de-base-de-datos-lampp-por-defecto)). Así el proyecto se ejecuta en cualquier máquina sin configuración, y las credenciales reales pueden definirse mediante `export DB_HOST=... DB_USUARIO=... DB_CONTRA=... DB_BASEDATOS=...` sin modificar archivos del repositorio.
+> The database credentials are not part of the code: `config.php` reads them from the **environment variables** with `getenv()` and uses safe example values as a fallback (see the [Database credentials](#10-database-credentials-lampp-default) section). This way the project runs on any machine without configuration, and the real credentials can be defined with `export DB_HOST=... DB_USER=... DB_PASSWORD=... DB_NAME=...` without modifying repository files.
 
-### Paso 1: Iniciar los servicios
+### Step 1: Start the services
 
 ```bash
-# Arranca Apache y MariaDB
+# Starts Apache and MariaDB
 sudo /opt/lampp/lampp start
 
-# Comprobación de que ambos servicios están activos
+# Verification that both services are active
 sudo /opt/lampp/lampp status
 ```
 
-### Paso 2: Crear la base de datos
+### Step 2: Create the database
 
-Opción A (recomendada): importar el script incluido. El parámetro `--default-character-set` conserva las tildes del contenido:
+Option A (recommended): import the included script. The `--default-character-set` parameter preserves the accents in the content:
 
 ```bash
-/opt/lampp/bin/mysql -u root --default-character-set=utf8mb4 < tienda.sql
+/opt/lampp/bin/mysql -u root --default-character-set=utf8mb4 < store.sql
 ```
 
-Opción B (manual): revisar el contenido del script comando por comando.
+Option B (manual): review the script content command by command.
 
 ```bash
 /opt/lampp/bin/mysql -u root
 ```
 
 ```sql
-USE Tienda;
-DESCRIBE Productos;       -- Muestra los 5 campos y sus tipos
-DESCRIBE Consultas;       -- Muestra los 6 campos de la tabla de consultas
-SELECT * FROM Productos;  -- Debe mostrar las 15 camisetas del catálogo
+USE Store;
+DESCRIBE Products;       -- Shows the 5 fields and their types
+DESCRIBE Inquiries;      -- Shows the 6 fields of the inquiries table
+SELECT * FROM Products;  -- Should show the 15 catalog t-shirts
 ```
 
-> **Nota sobre las credenciales:** los datos de conexión (host, usuario, contraseña y base) viven en `config.php`, que los lee del entorno con `getenv()`. Si el LAMPP usa una contraseña de root distinta, se definen las variables de entorno correspondientes (`DB_USUARIO`, `DB_CONTRA`) antes de iniciar Apache, o se ajustan los respaldos del propio `config.php`.
+> **Note on credentials:** the connection data (host, user, password and database) live in `config.php`, which reads them from the environment with `getenv()`. If LAMPP uses a different root password, define the corresponding environment variables (`DB_USER`, `DB_PASSWORD`) before starting Apache, or adjust the fallbacks in `config.php` itself.
 
-### Paso 3: Publicar el proyecto en LAMPP
+### Step 3: Publish the project in LAMPP
 
-La raíz web de LAMPP es `/opt/lampp/htdocs`. El proyecto se publica con un enlace simbólico (se ajusta la ruta a donde se haya clonado):
+LAMPP's web root is `/opt/lampp/htdocs`. The project is published with a symbolic link (adjust the path to where it was cloned):
 
 ```bash
 sudo ln -s $PWD /opt/lampp/htdocs/tienda_virtual
 ```
 
-Alternativa (copia directa):
+Alternative (direct copy):
 
 ```bash
 sudo cp -r . /opt/lampp/htdocs/tienda_virtual/
 ```
 
-### Paso 4: Probar en el navegador
+### Step 4: Test in the browser
 
-Acceso en el navegador: <http://localhost/tienda_virtual/>
+Browser access: <http://localhost/tienda_virtual/>
 
-Lista de verificación visual:
+Visual checklist:
 
-- [ ] Se muestran las 15 camisetas (códigos 1 al 15).
-- [ ] Cada tarjeta muestra imagen, nombre, detalle, código y precio.
-- [ ] Solo existen 2 precios: 8,500 (tonos claros) y 12,500 (de color).
-- [ ] Todas las imágenes cargan (ningún ícono roto).
-- [ ] La cuadrícula responde: 3 tarjetas por fila en PC, 1 por fila en móvil.
-- [ ] Al hacer clic en una imagen se abre ampliada en una ventana modal.
-- [ ] Al pulsar "Agregar al carrito" sale la confirmación y el contador sube.
-- [ ] La tarjeta agregada muestra la insignia "En tu carrito (xN)".
-- [ ] "Carrito" lista todos los ítems con miniatura, cantidad de unidades y subtotal por producto, y el total sumado.
-- [ ] Si el mismo producto se agrega varias veces, el carrito lo muestra agrupado en una sola fila con su cantidad (no filas repetidas).
-- [ ] "Vaciar carrito" borra el listado; el carrito queda vacío.
-- [ ] "Cerrar sesión" muestra el aviso "La sesión finalizó" con el botón "Iniciar sesión" y deja el carrito vacío.
+- [ ] The 15 t-shirts are shown (codes 1 to 15).
+- [ ] Each card shows image, name, detail, code and price.
+- [ ] There are only 2 prices: 8,500 (light tones) and 12,500 (colored).
+- [ ] All images load (no broken icons).
+- [ ] The grid is responsive: 3 cards per row on desktop, 1 per row on mobile.
+- [ ] Clicking an image opens it enlarged in a modal window.
+- [ ] Pressing "Add to cart" shows the confirmation and the counter goes up.
+- [ ] The added card shows the "In your cart (xN)" badge.
+- [ ] "Cart" lists all items with thumbnail, unit quantity and subtotal per product, and the summed total.
+- [ ] If the same product is added several times, the cart shows it grouped in a single row with its quantity (no repeated rows).
+- [ ] "Empty cart" clears the listing; the cart is left empty.
+- [ ] "Log out" shows the "The session has ended" notice with the "Sign in" button and leaves the cart empty.
 
-Funcionalidades adicionales:
+Additional features:
 
-- [ ] "Consultas" abre el formulario; al enviarlo se guarda en la tabla `Consultas`.
-- [ ] En el formulario de consultas, un correo inválido se rechaza.
-- [ ] "Finalizar compra" muestra el resumen de artículos y el monto total.
-- [ ] Tras finalizar la compra, el carrito queda vacío.
+- [ ] "Inquiries" opens the form; submitting it stores the data in the `Inquiries` table.
+- [ ] In the inquiry form, an invalid email is rejected.
+- [ ] "Checkout" shows the item summary and the total amount.
+- [ ] After checking out, the cart is empty.
 
-### Paso 5: Prueba de fallo controlado
+### Step 5: Controlled failure test
 
-El sitio debe mostrar un mensaje claro si la base de datos no responde:
+The site must show a clear message if the database does not respond:
 
 ```bash
 sudo /opt/lampp/lampp stopmysql
-# Recarga de la página: debe verse un mensaje legible de error de conexión,
-# nunca una pantalla en blanco ni credenciales expuestas
+# Reload the page: a readable connection error message must appear,
+# never a blank screen or exposed credentials
 sudo /opt/lampp/lampp startmysql
 ```
 
-### Ejemplo de manejo de errores (inventarios de verano e invierno)
+### Error handling example (summer and winter inventories)
 
-El archivo `ejemplo_errores.php` demuestra el manejo de errores consultando una base de datos que no existe. Se accede desde los botones "Verano" e "Invierno" del menú, que envían el parámetro `estacion` por GET:
+The `error_example.php` file demonstrates error handling by querying a database that does not exist. It is accessed from the "Summer" and "Winter" buttons in the menu, which send the `season` parameter via GET:
 
-- `ejemplo_errores.php?estacion=verano` intenta conectar a `inventario_verano`.
-- `ejemplo_errores.php?estacion=invierno` intenta conectar a `inventario_invierno`.
+- `error_example.php?season=summer` tries to connect to `inventory_summer`.
+- `error_example.php?season=winter` tries to connect to `inventory_winter`.
 
-En ambos casos:
+In both cases:
 
-- La conexión a la base de datos inexistente falla.
-- El error se registra en el log de Apache con `error_log()`.
-- Se muestra un mensaje amigable al usuario, sin detalle técnico.
-- El bloque `finally` indica que el procesamiento terminó.
+- The connection to the non-existent database fails.
+- The error is logged to the Apache log with `error_log()`.
+- A friendly message is shown to the user, without technical detail.
+- The `finally` block marks that processing finished.
 
-Para verlo: <http://localhost/tienda_virtual/ejemplo_errores.php?estacion=verano>
+To view it: <http://localhost/tienda_virtual/error_example.php?season=summer>
 
-Para comprobar el registro en el log:
+To check the log entry:
 
 ```bash
 sudo tail -f /opt/lampp/logs/php_error_log
-# Se debe abrir un botón (Verano o Invierno) y observar la línea de error registrada
+# Open a button (Summer or Winter) and observe the logged error line
 ```
 
-### Paso 6: Personalizar el catálogo
+### Step 6: Customize the catalog
 
-Los productos viven en `tienda.sql`. Para cambiarlos:
+The products live in `store.sql`. To change them:
 
-1. Se editan los `INSERT` de `tienda.sql` (o se agregan filas nuevas).
-2. Se reimporta para reconstruir todo desde cero:
+1. Edit the `INSERT` statements in `store.sql` (or add new rows).
+2. Re-import to rebuild everything from scratch:
    ```bash
-   /opt/lampp/bin/mysql -u root --default-character-set=utf8mb4 < tienda.sql
+   /opt/lampp/bin/mysql -u root --default-character-set=utf8mb4 < store.sql
    ```
-3. Se recarga el navegador; la galería siempre refleja lo que hay en la base de datos.
+3. Reload the browser; the gallery always reflects what is in the database.
 
-Para reiniciar la base de datos a su estado original basta repetir el mismo comando de importación: el script borra y recrea la tabla cada vez.
+To reset the database to its original state, repeat the same import command: the script drops and recreates the table every time.
 
 ---
 
-## 10. Credenciales de base de datos (LAMPP por defecto)
+## 10. Database credentials (LAMPP default)
 
-Las credenciales se configuran en `config.php`, que las lee del **entorno del sistema** con `getenv()`. Los valores por defecto del LAMPP/XAMPP con los que el usuario suele conectar son:
+The credentials are configured in `config.php`, which reads them from the system **environment** with `getenv()`. The default LAMPP/XAMPP values the user usually connects with are:
 
-| Parámetro  | Valor     | Variable de entorno |
-| ---------- | --------- | ------------------- |
-| Host       | localhost | `DB_HOST`           |
-| Usuario    | root      | `DB_USUARIO`        |
-| Contraseña | (vacía)   | `DB_CONTRA`         |
-| Base       | Tienda    | `DB_BASEDATOS`      |
+| Parameter | Value     | Environment variable |
+| --------- | --------- | -------------------- |
+| Host      | localhost | `DB_HOST`            |
+| User      | root      | `DB_USER`            |
+| Password  | (empty)   | `DB_PASSWORD`        |
+| Database  | Store     | `DB_NAME`            |
 
-### Cómo se definen las variables de entorno en el entorno local
+### How to define the environment variables locally
 
-La forma recomendada para este proyecto es un archivo **`.htaccess`** en la raíz (permitido porque LAMPP tiene `AllowOverride All` en htdocs). Contiene las variables con la directiva `SetEnv` y **no se versiona** (está en `.gitignore`), porque ahí viven las credenciales reales de cada máquina:
+The recommended way for this project is a **`.htaccess`** file in the root (allowed because LAMPP has `AllowOverride All` in htdocs). It holds the variables with the `SetEnv` directive and is **not versioned** (it is in `.gitignore`), because that is where the real credentials of each machine live:
 
 ```
-# Contenido del archivo .htaccess del proyecto (no se sube a git)
+# Content of the project .htaccess file (not uploaded to git)
 SetEnv DB_HOST "localhost"
-SetEnv DB_USUARIO "root"
-SetEnv DB_CONTRA ""
-SetEnv DB_BASEDATOS "Tienda"
+SetEnv DB_USER "root"
+SetEnv DB_PASSWORD ""
+SetEnv DB_NAME "Store"
 ```
 
-Apache lee el `.htaccess` en cada petición, por lo que **no es necesario reiniciar el servidor** al crearlo o modificarlo.
+Apache reads the `.htaccess` on every request, so **it is not necessary to restart the server** when creating or modifying it.
 
-Alternativa equivalente en la terminal (útil para entornos sin Apache o pruebas por CLI):
+Equivalent terminal alternative (useful for environments without Apache or CLI tests):
 
 ```bash
 export DB_HOST="localhost"
-export DB_USUARIO="root"
-export DB_CONTRA=""
-export DB_BASEDATOS="Tienda"
+export DB_USER="root"
+export DB_PASSWORD=""
+export DB_NAME="Store"
 ```
 
-`config.php` retiene como respaldo sus valores de ejemplo seguros —que no son credenciales reales (usuario `usuario`, contraseña `contrasena`)—, de modo que el repositorio no expone información sensible, y la conexión real se resuelve únicamente con las variables de entorno del servidor, sin editar ningún archivo del proyecto.
+`config.php` keeps its safe example values as a fallback —which are not real credentials (user `user`, password `password`)—, so the repository exposes no sensitive information, and the real connection is resolved only with the server environment variables, without editing any project file.
 
 ---
 
-## 11. Seguridad aplicada
+## 11. Security practices
 
-| Medida                                                      | Dónde                                                                | Riesgo que mitiga                                        |
-| ----------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- |
-| `htmlspecialchars()` en todo dato impreso                   | index.php                                                            | XSS (inyección de HTML/JS desde datos de la BD)          |
-| Credenciales fuera del código (getenv + valores de ejemplo) | config.php                                                           | Credenciales expuestas en el repositorio o código fuente |
-| Prepared statements (prepare + bind_param)                  | agregar.php, funciones_carrito.php, guardar_consulta.php             | Inyección SQL en consultas con datos del usuario/sesión  |
-| Manejo de errores con try-catch + error_log                 | conexion/productos/agregar/carrito/finalizar/guardar                 | Errores silenciosos, fuga de información técnica         |
-| Validación del formato de correo                            | guardar_consulta.php                                                 | Datos incorrectos en la base de datos                    |
-| Cierre explícito de la conexión                             | productos.php, etc.                                                  | Agotamiento de recursos del servidor                     |
-| Cast `(int)` del código recibido por POST                   | agregar.php                                                          | Inyección SQL / datos maliciosos en la sesión            |
-| `isset()` defensivo antes de leer `$_SESSION`               | index/agregar/carrito                                                | Accidentes por llaves inexistentes                       |
-| Mensajes de error claros, sin detalles técnicos             | todos                                                                | Exposición de información sensible                       |
+| Measure                                                      | Where                                                           | Risk mitigated                                            |
+| ------------------------------------------------------------ | --------------------------------------------------------------- | --------------------------------------------------------- |
+| `htmlspecialchars()` on all printed data                     | index.php                                                       | XSS (HTML/JS injection from DB data)                      |
+| Credentials outside the code (getenv + example values)       | config.php                                                      | Credentials exposed in the repository or source code      |
+| Prepared statements (prepare + bind_param)                   | add_to_cart.php, cart_functions.php, save_inquiry.php           | SQL injection in queries with user/session data           |
+| Error handling with try-catch + error_log                    | connection/products/add/cart/checkout/save                      | Silent errors, technical information leakage              |
+| Email format validation                                      | save_inquiry.php                                                | Wrong data in the database                                |
+| Explicit connection closing                                  | products.php, etc.                                               | Server resource exhaustion                                |
+| Cast `(int)` of the code received via POST                   | add_to_cart.php                                                 | SQL injection / malicious data in the session             |
+| Defensive `isset()` before reading `$_SESSION`               | index/add_to_cart/cart                                          | Accidents from missing keys                               |
+| Clear error messages without technical details               | all                                                             | Sensitive information exposure                            |
 
-Otras prácticas aplicadas:
+Other applied practices:
 
-- Las acciones que modifican datos (agregar, vaciar, finalizar compra, guardar consulta) se envían por POST.
-- La conexión se cierra con `$conexion->close()` al terminar su uso.
-- El estilo de acceso a datos es orientado a objetos con la extensión mysqli.
+- Actions that modify data (add, empty, checkout, save inquiry) are sent via POST.
+- The connection is closed with `$connection->close()` after use.
+- The data access style is object-oriented with the mysqli extension.
 
 ---
 
-## 12. Capturas de pantalla
+## 12. Screenshots
 
-**Página principal de la tienda virtual de camisetas UNIX.**
+**Main page of the UNIX t-shirts virtual store.**
 
 ![galeria_01](screenshots/galeria_01.png)
 
-**Muestra la misma página principal, pero con el carrito de compras con 5 productos agregados.**
+**Shows the same main page, but with 5 products added to the shopping cart.**
 
 ![galeria_02](screenshots/galeria_02.png)
 
-**Muestra el aviso que se presenta al usuario al cerrar la sesión, con un botón para iniciar sesión de nuevo.**
+**Shows the notice presented to the user when logging out, with a button to sign in again.**
 
 ![sesion_finalizada_01](screenshots/sesion_finalizada_01.png)
 
-**Muestra el modal con la imagen ampliada de un producto.**
+**Shows the modal with the enlarged image of a product.**
 
 ![galeria_03](screenshots/galeria_03.png)
 
-**Muestra en phpMyAdmin la consulta SELECT sobre la tabla Productos.**
+**Shows in phpMyAdmin the SELECT query on the Products table.**
 
 ![base_de_datos_01](screenshots/base_de_datos_01.png)
 
-**Muestra en phpMyAdmin las filas (productos) de la tabla Productos.**
+**Shows in phpMyAdmin the rows (products) of the Products table.**
 
 ![base_de_datos_02](screenshots/base_de_datos_02.png)
 
-**Captura del formulario de consultas, que recoge el nombre, teléfono, correo y detalle de la consulta del cliente.**
+**Screenshot of the inquiry form, which collects the customer's name, phone, email and inquiry detail.**
 
 ![consulta_01](screenshots/consulta_01.png)
 
-**Captura del resumen del contenido del carrito de compras, que detalla los artículos por pagar.**
+**Screenshot of the shopping cart content summary, detailing the items to be paid.**
 
 ![finalizar_compra_01](screenshots/finalizar_compra_01.png)
 
-**Captura del proceso de finalizar compra, mostrando el monto total.**
+**Screenshot of the checkout process, showing the total amount.**
 
 ![finalizar_compra_02](screenshots/finalizar_compra_02.png)
 
-**Captura del ejemplo de manejo de errores, con el mensaje mostrado al usuario cuando falla la consulta de un inventario.**
+**Screenshot of the error handling example, with the message shown to the user when an inventory query fails.**
 
 ![manejo_de_errores_01](screenshots/manejo_de_errores_01.png)
 
-**Captura del log de errores de PHP, visto con el comando `tail -f` sobre el archivo del log.**
+**Screenshot of the PHP error log, viewed with the `tail -f` command.**
 
 ![php_error_log_01](screenshots/php_error_log_01.png)

@@ -1,44 +1,46 @@
 <?php
-// config.php: archivo de configuración con los datos de acceso
-// a la base de datos. Mantiene las credenciales separadas del
-// código de conexión para centralizar su edición.
+// config.php: configuration file holding the database
+// credentials. It keeps connection details separate from
+// the connection logic for easy maintenance.
 //
-// Las credenciales se leen de las variables de entorno del sistema
-// con getenv(). Si una variable de entorno NO está definida, se usa
-// el valor de ejemplo que aparece como respaldo. Así el proyecto
-// mantiene valores seguros por omisión, pero en un entorno real las
-// credenciales pueden inyectarse desde el exterior con SetEnv o
-// export, sin modificar este archivo.
+// Credentials are read from system environment variables
+// using getenv(). If an environment variable is NOT defined,
+// a safe example value is used as a fallback. This way the
+// project works out of the box with safe defaults, while
+// production credentials can be injected from the server
+// environment using SetEnv or export, without touching this file.
 //
-// DETALLE IMPORTANTE: la contraseña y el usuario no usan el operador ?:
-// porque una contraseña vacía ("") es un valor válido en LAMPP, y ?:
-// trataría esa cadena vacía como "falsa" y pondría el respaldo.
-// Por eso se compara explícitamente con false (variable no definida),
-// distinguiendo así "no definida" de "definida pero vacía".
+// IMPORTANT: password and username do NOT use the ?: operator
+// because an empty password ("") is valid in LAMPP, and ?:
+// would treat that empty string as "false" and apply the
+// fallback. That is why we explicitly compare against false
+// (variable not defined), distinguishing "not defined" from
+// "defined but empty".
 
-// Servidor donde se ejecuta MariaDB (misma máquina con LAMPP).
-// getenv('DB_HOST') devuelve el valor de la variable de entorno DB_HOST
-// o false si no existe. El operador ?: usa el respaldo si el valor
-// resultante es falso o vacío; aquí "localhost" nunca es un secreto.
+// Server where MariaDB runs (same machine with LAMPP).
+// getenv('DB_HOST') returns the value of the DB_HOST
+// environment variable or false if it does not exist.
+// The ?: operator applies the fallback if the result is
+// falsy or empty; "localhost" is never a secret.
 $host = getenv('DB_HOST') ?: 'localhost';
 
-// Usuario de la base de datos. Se usa getenv() y se compara con false:
-// si la variable no está definida, se aplica el valor de ejemplo.
-$usuario = getenv('DB_USUARIO');
-if ($usuario === false) {
-    $usuario = 'usuario';
+// Database username. getenv() is used and compared to false:
+// if the variable is not defined, the example value is applied.
+$user = getenv('DB_USER');
+if ($user === false) {
+    $user = 'user';
 }
 
-// Contraseña del usuario. En LAMPP el valor por defecto es vacío (""),
-// por lo que NO se usa ?:. Se comprueba solo si la variable de entorno
-// está definida; si lo está (aunque sea vacía), se respeta tal cual.
-// El respaldo conserva un valor de ejemplo ("contrasena") para no
-// exponer credenciales dentro del repositorio.
-$contrasena = getenv('DB_CONTRA');
-if ($contrasena === false) {
-    $contrasena = 'contrasena';
+// Database password. In LAMPP the default is empty (""),
+// so ?: is NOT used. We only check if the environment
+// variable is defined; if it is (even if empty), it is
+// used as-is. The fallback keeps an example value ("password")
+// to avoid exposing credentials in the repository.
+$password = getenv('DB_PASSWORD');
+if ($password === false) {
+    $password = 'password';
 }
 
-// Nombre de la base de datos del proyecto.
-$basedatos = getenv('DB_BASEDATOS') ?: 'Tienda';
+// Project database name.
+$database = getenv('DB_NAME') ?: 'Store';
 ?>

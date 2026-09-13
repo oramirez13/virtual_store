@@ -1,15 +1,14 @@
-# Ignora archivos de configuracion local del editor
+# Editor local configuration files
 .vscode/
 .idea/
 
-# Variables de entorno del servidor (credenciales reales): NO se versionan
+# Server environment variables (real credentials): NOT versioned
 .htaccess
 
-# Ignora archivos del sistema
+# System files
 .DS_Store
 Thumbs.db
 
-# Ignora respaldos temporales
+# Temporary backup files
 *.bak
 *~
-

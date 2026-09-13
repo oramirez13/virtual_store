@@ -1,31 +1,31 @@
 /* ============================================================
-   style.css - Estilos propios de la Tienda Virtual
-   Complementa a Bootstrap 5.
+   style.css - Own styles for the Virtual Store
+   Complements Bootstrap 5.
    ============================================================ */
 
-/* Altura fija para las fotos y recorte centrado */
+/* Fixed height for photos and centered crop */
 .img-producto {
-    height: 260px;     /* Misma altura en todas las fotografías */
-    object-fit: cover; /* Recorta centrando sin deformar la imagen */
-    cursor: pointer;   /* Cambia el cursor para señalar que hay clic */
+    height: 260px;     /* Same height for all photos */
+    object-fit: cover;  /* Crops centered without distorting the image */
+    cursor: pointer;   /* Changes the cursor to indicate click */
 }
 
-/* Efecto de elevación al pasar el cursor por una tarjeta */
+/* Elevation effect when hovering over a card */
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     transition: all 0.25s ease-in-out;
 }
 
-/* Desplazamiento suave para el botón "volver arriba" */
+/* Smooth scrolling for the "back to top" button */
 html {
     scroll-behavior: smooth;
 }
 
-/* Botón flotante "volver arriba", forma circular */
+/* Floating circular "back to top" button */
 .btn-volver-arriba {
-    width: 48px;           /* Ancho fijo */
-    height: 48px;          /* Igual al ancho para quedar circular */
-    border-radius: 50%;    /* Bordes totalmente redondeados */
-    font-size: 1.3rem;     /* Tamaño de la flecha */
+    width: 48px;           /* Fixed width */
+    height: 48px;          /* Same as width to make it circular */
+    border-radius: 50%;    /* Fully rounded corners */
+    font-size: 1.3rem;     /* Arrow size */
 }

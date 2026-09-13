@@ -1,47 +1,47 @@
 <?php
-// index.php: muestra la galería de productos y permite agregar
-// cada uno al carrito de compras. El carrito se guarda en la
-// sesión del usuario.
+// index.php: displays the product gallery and allows adding
+// each product to the shopping cart. The cart is stored in the
+// user session.
 
-// session_start(): abre la sesión o retoma la existente. Debe
-// ejecutarse antes de enviar cualquier salida HTML, porque envía
-// la cabecera HTTP de la cookie de sesión.
+// session_start(): opens the session or resumes the existing one.
+// It must run before any HTML output because it sends the HTTP
+// header of the session cookie.
 session_start();
 
-// include 'productos.php': consulta los productos y deja listo
-// el arreglo $productos para recorrerlo en la galería
-include 'productos.php';
+// include 'products.php': queries the products and prepares
+// the $products array to iterate in the gallery
+include 'products.php';
 
-// Lee el carrito de la sesión; si no existe, se trata como vacío.
-// isset() comprueba la existencia de la llave antes de usarla.
-$conteo = [];
-if(isset($_SESSION['carrito'])){
-    // array_count_values(): cuenta cuántas veces aparece cada código;
-    // con [4, 7, 4] devuelve [4 => 2, 7 => 1]
-    $conteo = array_count_values($_SESSION['carrito']);
+// Reads the session cart; if it does not exist, it is treated
+// as empty. isset() checks the key before using it.
+$counts = [];
+if(isset($_SESSION['cart'])){
+    // array_count_values(): counts how many times each code
+    // appears; with [4, 7, 4] it returns [4 => 2, 7 => 1]
+    $counts = array_count_values($_SESSION['cart']);
 }
-// array_sum(): suma las cantidades para obtener el total de ítems
-$cantidad = array_sum($conteo);
+// array_sum(): adds the quantities to get the total item count
+$quantity = array_sum($counts);
 
-// Mensaje flash: si existe en la sesión, se copia a una variable local
-// y se borra de la sesión para que solo se muestre una vez.
+// Flash message: if present in the session, it is copied to a
+// local variable and removed from the session to show it once.
 $flash = "";
-$flashTipo = "success";
+$flashType = "success";
 if(isset($_SESSION['flash'])){
-    $flash = $_SESSION['flash']['texto'];
-    $flashTipo = $_SESSION['flash']['tipo'];
-    // unset(): elimina el mensaje flash ya consumido de la sesión
+    $flash = $_SESSION['flash']['message'];
+    $flashType = $_SESSION['flash']['type'];
+    // unset(): removes the already consumed flash message
     unset($_SESSION['flash']);
 }
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tienda Virtual - Carrito de Compras</title>
+    <title>Virtual Store - Shopping Cart</title>
 
-    <!-- Framework CSS Bootstrap -->
+    <!-- Bootstrap CSS framework -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -49,104 +49,106 @@ if(isset($_SESSION['flash'])){
       crossorigin="anonymous"
     />
 
-    <!-- Estilos propios del proyecto -->
+    <!-- Project own styles -->
     <link rel="stylesheet" href="css/style.css" />
   </head>
 
   <body>
-    <!-- Barra superior; "inicio" es el destino del botón volver arriba -->
-    <nav id="inicio" class="navbar navbar-dark bg-dark mb-4">
-      <!-- Flex de Bootstrap: marca a la izquierda, enlaces a la derecha -->
+    <!-- Top bar; "top" is the destination of the "back to top" button -->
+    <nav id="top" class="navbar navbar-dark bg-dark mb-4">
+      <!-- Bootstrap flex: brand on the left, links on the right -->
       <div class="container d-flex justify-content-between align-items-center">
-        <span class="navbar-brand mb-0 h1">Tienda Virtual de Camisetas UNIX</span>
+        <span class="navbar-brand mb-0 h1">UNIX T-Shirts Virtual Store</span>
         <div>
-        <?php if($cantidad > 0){ ?>
-          <!-- Enlace al carrito con el contador de ítems -->
-          <a href="carrito.php" class="text-white text-decoration-none">
-            <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 22px;" class="me-1">
-            Carrito (<?php echo $cantidad; ?>)
+        <?php if($quantity > 0){ ?>
+          <!-- Cart link with the item counter -->
+          <a href="cart.php" class="text-white text-decoration-none">
+            <img src="img/icons8-shopping-cart-48.png" alt="Cart" style="width: 22px;" class="me-1">
+            Cart (<?php echo $quantity; ?>)
           </a>
         <?php } else { ?>
-          <!-- Enlace al carrito sin contador cuando no hay ítems -->
-          <a href="carrito.php" class="text-white text-decoration-none">
-            <img src="img/icons8-shopping-cart-48.png" alt="Carrito" style="width: 22px;" class="me-1">
-            Carrito
+          <!-- Cart link without counter when there are no items -->
+          <a href="cart.php" class="text-white text-decoration-none">
+            <img src="img/icons8-shopping-cart-48.png" alt="Cart" style="width: 22px;" class="me-1">
+            Cart
           </a>
         <?php } ?>
-          <!-- Cierra la sesión completa: borra la cookie y los datos
-               guardados en el servidor -->
-          <a href="consulta.php" class="text-white text-decoration-none ms-3">Consultas</a>
-          <!-- Ejemplos de manejo de errores por estación: cada botón
-               consulta un inventario cuyo acceso falla y se muestra un
-               mensaje de error al usuario -->
-          <a href="ejemplo_errores.php?estacion=verano" class="text-white text-decoration-none ms-3">Verano</a>
-          <a href="ejemplo_errores.php?estacion=invierno" class="text-white text-decoration-none ms-3">Invierno</a>
-          <a href="cerrar.php" class="text-white text-decoration-none ms-3">Cerrar sesión</a>
+          <!-- Ends the whole session: deletes the cookie and the
+               data stored on the server -->
+          <a href="inquiry.php" class="text-white text-decoration-none ms-3">Inquiries</a>
+          <!-- Error handling examples by season: each button queries
+               an inventory whose access fails and shows an error
+               message to the user -->
+          <a href="error_example.php?season=summer" class="text-white text-decoration-none ms-3">Summer</a>
+          <a href="error_example.php?season=winter" class="text-white text-decoration-none ms-3">Winter</a>
+          <a href="logout.php" class="text-white text-decoration-none ms-3">Log out</a>
         </div>
       </div>
     </nav>
 
     <?php if($flash != ""){ ?>
-      <!-- Alerta flotante de Bootstrap con el mensaje flash.
-           El color depende de $flashTipo (success/danger/warning) -->
+      <!-- Floating Bootstrap alert with the flash message.
+           The color depends on $flashType (success/danger/warning) -->
       <div class="container">
-        <div class="alert alert-<?php echo $flashTipo; ?> alert-dismissible fade show" role="alert">
+        <div class="alert alert-<?php echo $flashType; ?> alert-dismissible fade show" role="alert">
           <?php echo $flash; ?>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       </div>
     <?php } ?>
 
     <div class="container">
-      <h1 class="mb-4">Galería de Productos</h1>
+      <h1 class="mb-4">Product Gallery</h1>
 
       <div class="row">
         <?php
-        // foreach(): recorre los productos; en cada vuelta $producto es una fila
-        foreach ($productos as $producto) {
+        // foreach(): iterates the products; on each pass $product
+        // is one row
+        foreach ($products as $product) {
 
-            // htmlspecialchars(): escapa los datos antes de imprimirlos,
-            // para evitar que contenido de la BD se ejecute como HTML
-            $codigo  = htmlspecialchars($producto['codigo']);
-            $nombre  = htmlspecialchars($producto['nombre']);
-            $detalle = htmlspecialchars($producto['detalle']);
-            $imagen  = htmlspecialchars($producto['imagen']);
+            // htmlspecialchars(): escapes the data before printing
+            // to prevent DB content from executing as HTML
+            $code  = htmlspecialchars($product['code']);
+            $name  = htmlspecialchars($product['name']);
+            $detail = htmlspecialchars($product['detail']);
+            $image  = htmlspecialchars($product['image']);
 
-            // number_format(): da formato al precio con 2 decimales
-            $precio = number_format($producto['precio'], 2);
+            // number_format(): formats the price with 2 decimals
+            $price = number_format($product['price'], 2);
         ?>
-          <!-- Tarjeta: ancho completo en móvil y un tercio en computadora.
-               El id (producto-CODIGO) sirve de ancla: al agregar un producto,
-               agregar.php redirige a esta posición y el navegador se queda
-               en el lugar donde el usuario hizo clic -->
-          <div class="col-12 col-md-4 mb-4" id="producto-<?php echo $codigo; ?>">
+          <!-- Card: full width on mobile and one third on desktop.
+               The id (product-CODE) serves as an anchor: when a
+               product is added, add_to_cart.php redirects here and
+               the browser stays where the user clicked -->
+          <div class="col-12 col-md-4 mb-4" id="product-<?php echo $code; ?>">
             <div class="card h-100 shadow-sm">
-              <!-- Foto del producto; al hacer clic, script.js abre el modal -->
-              <img src="<?php echo $imagen; ?>" class="card-img-top img-producto" alt="<?php echo $nombre; ?>">
+              <!-- Product photo; on click, script.js opens the modal -->
+              <img src="<?php echo $image; ?>" class="card-img-top img-producto" alt="<?php echo $name; ?>">
 
               <div class="card-body">
-                <?php if(isset($conteo[$producto['codigo']])){ ?>
-                  <!-- Insignia que indica que el producto ya está en el carrito;
-                       usa el conteo leído de la sesión -->
+                <?php if(isset($counts[$product['code']])){ ?>
+                  <!-- Badge indicating the product is already in the
+                       cart; uses the count read from the session -->
                   <span class="badge text-bg-success mb-2">
-                    En tu carrito (x<?php echo $conteo[$producto['codigo']]; ?>)
+                    In your cart (x<?php echo $counts[$product['code']]; ?>)
                   </span>
                 <?php } ?>
-                <h5 class="card-title"><?php echo $nombre; ?></h5>
-                <p class="card-text"><?php echo $detalle; ?></p>
+                <h5 class="card-title"><?php echo $name; ?></h5>
+                <p class="card-text"><?php echo $detail; ?></p>
               </div>
 
               <div class="card-footer bg-white">
-                <small class="text-muted">Código: <?php echo $codigo; ?></small>
-                <!-- Clases de Bootstrap: texto en negrita de color verde -->
-                <p class="mb-0 fw-bold text-success">&#8353; <?php echo $precio; ?></p>
+                <small class="text-muted">Code: <?php echo $code; ?></small>
+                <!-- Bootstrap classes: bold green colored text -->
+                <p class="mb-0 fw-bold text-success">&#8353; <?php echo $price; ?></p>
 
-                <!-- Formulario que envía el código del producto a agregar.php.
-                     El campo oculto viaja por POST sin mostrarse en pantalla -->
-                <form method="post" action="agregar.php" class="mt-2">
-                  <input type="hidden" name="codigo" value="<?php echo $codigo; ?>">
+                <!-- Form that sends the product code to
+                     add_to_cart.php. The hidden field travels via
+                     POST without being shown on screen -->
+                <form method="post" action="add_to_cart.php" class="mt-2">
+                  <input type="hidden" name="code" value="<?php echo $code; ?>">
                   <button type="submit" class="btn btn-primary btn-sm w-100">
-                    Agregar al carrito
+                    Add to cart
                   </button>
                 </form>
               </div>
@@ -156,36 +158,36 @@ if(isset($_SESSION['flash'])){
       </div>
     </div>
 
-    <!-- Modal oculto que muestra la imagen ampliada al hacer clic en una foto -->
-    <div class="modal fade" id="modalImagen" tabindex="-1" aria-labelledby="modalImagenTitulo" aria-hidden="true">
+    <!-- Hidden modal that shows the enlarged image when clicking a photo -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalTitle" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <!-- Título del modal con el nombre del producto -->
-            <h5 class="modal-title" id="modalImagenTitulo">Producto</h5>
-            <!-- Botón X de cierre nativo de Bootstrap -->
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <!-- Modal title with the product name -->
+            <h5 class="modal-title" id="imageModalTitle">Product</h5>
+            <!-- Bootstrap native close X button -->
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-0">
-            <!-- Imagen ampliada; su origen lo asigna script.js -->
-            <img id="imagenAmpliada" src="" alt="" class="img-fluid w-100">
+            <!-- Enlarged image; its source is assigned by script.js -->
+            <img id="enlargedImage" src="" alt="" class="img-fluid w-100">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Botón flotante volver arriba (ancla a #inicio) -->
-    <a href="#inicio" class="btn btn-dark btn-volver-arriba position-fixed bottom-0 end-0 m-4 shadow-sm"
-       aria-label="Volver arriba">&#8593;</a>
+    <!-- Floating back-to-top button (anchor to #top) -->
+    <a href="#top" class="btn btn-dark btn-volver-arriba position-fixed bottom-0 end-0 m-4 shadow-sm"
+       aria-label="Back to top">&#8593;</a>
 
-    <!-- JavaScript de Bootstrap (modal) -->
+    <!-- Bootstrap JavaScript (modal) -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
 
-    <!-- Lógica propia del modal -->
+    <!-- Modal own logic -->
     <script src="js/script.js" type="text/javascript"></script>
   </body>
 </html>
