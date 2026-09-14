@@ -72,7 +72,7 @@ It also includes the customer **inquiry form**, the **checkout** feature and **e
 ## 4. Project structure
 
 ```
-tienda_virtual/
+virtual_store/
 ├── connection.php       # Opens and validates the MySQL/MariaDB connection using config.php
 ├── config.php           # Credentials (read with getenv and example values as fallback)
 ├── cart_functions.php   # Helper: groups repeated products (quantity and subtotal)
@@ -118,7 +118,7 @@ tienda_virtual/
 ```
 User browser
         |
-        | HTTP GET request http://localhost/tienda_virtual/
+        | HTTP GET request http://localhost/virtual_store/
         v
 index.php  (presentation)
         |
@@ -326,10 +326,10 @@ Modal interactivity:
 
 ```bash
 # Clones the repository into the desired folder
-git clone https://github.com/oramirez13/tienda_virtual.git tienda_virtual
+git clone https://github.com/oramirez13/virtual_store.git virtual_store
 
 # Access the project folder
-cd tienda_virtual
+cd virtual_store
 ```
 
 > The database credentials are not part of the code: `config.php` reads them from the **environment variables** with `getenv()` and uses safe example values as a fallback (see the [Database credentials](#10-database-credentials-lampp-default) section). This way the project runs on any machine without configuration, and the real credentials can be defined with `export DB_HOST=... DB_USER=... DB_PASSWORD=... DB_NAME=...` without modifying repository files.
@@ -372,18 +372,18 @@ SELECT * FROM Products;  -- Should show the 15 catalog t-shirts
 LAMPP's web root is `/opt/lampp/htdocs`. The project is published with a symbolic link (adjust the path to where it was cloned):
 
 ```bash
-sudo ln -s $PWD /opt/lampp/htdocs/tienda_virtual
+sudo ln -s $PWD /opt/lampp/htdocs/virtual_store
 ```
 
 Alternative (direct copy):
 
 ```bash
-sudo cp -r . /opt/lampp/htdocs/tienda_virtual/
+sudo cp -r . /opt/lampp/htdocs/virtual_store/
 ```
 
 ### Step 4: Test in the browser
 
-Browser access: <http://localhost/tienda_virtual/>
+Browser access: <http://localhost/virtual_store/>
 
 Visual checklist:
 
@@ -432,7 +432,7 @@ In both cases:
 - A friendly message is shown to the user, without technical detail.
 - The `finally` block marks that processing finished.
 
-To view it: <http://localhost/tienda_virtual/error_example.php?season=summer>
+To view it: <http://localhost/virtual_store/error_example.php?season=summer>
 
 To check the log entry:
 
