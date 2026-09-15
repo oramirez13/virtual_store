@@ -98,16 +98,17 @@ virtual_store/
 │   ├── tshirt_15.jpg
 │   └── icons8-shopping-cart-48.png  # Cart icon in the top bar
 └── screenshots/         # Site and phpMyAdmin screenshots
-    ├── galeria_01.png            # Main store page
-    ├── galeria_02.png            # Gallery with 5 products in the cart
-    ├── galeria_03.png            # Modal with the enlarged product image
-    ├── sesion_finalizada_01.png  # Notice shown when logging out
-    ├── base_de_datos_01.png      # phpMyAdmin: SELECT query on the Products table
-    ├── base_de_datos_02.png      # phpMyAdmin: Products table rows
-    ├── consulta_01.png           # Inquiry form
-    ├── finalizar_compra_01.png   # Cart contents with the total to pay
-    ├── finalizar_compra_02.png   # Completed purchase summary with the total
-    ├── manejo_de_errores_01.png  # Error handling example
+    ├── gallery_01.png            # Main store page
+    ├── gallery_02.png            # Gallery with 5 products in the cart
+    ├── gallery_03.png            # Modal with the enlarged product image
+    ├── gallery_04.png            # Modal with another enlarged product image
+    ├── log_out_01.png            # Notice shown when logging out
+    ├── data_base_01.png          # phpMyAdmin: SELECT query on the Products table
+    ├── data_base_02.png          # phpMyAdmin: Products table rows
+    ├── inquiry_01.png            # Inquiry form
+    ├── checkout_01.png           # Cart contents with the total to pay
+    ├── checkout_02.png           # Completed purchase summary with the total
+    ├── error_handling_01.png     # Error handling example
     └── php_error_log_01.png      # PHP error log viewed with tail -f
 ```
 
@@ -520,43 +521,47 @@ Other applied practices:
 
 **Main page of the UNIX t-shirts virtual store.**
 
-![galeria_01](screenshots/galeria_01.png)
+![gallery_01](screenshots/gallery_01.png)
 
 **Shows the same main page, but with 5 products added to the shopping cart.**
 
-![galeria_02](screenshots/galeria_02.png)
+![gallery_02](screenshots/gallery_02.png)
 
 **Shows the notice presented to the user when logging out, with a button to sign in again.**
 
-![sesion_finalizada_01](screenshots/sesion_finalizada_01.png)
+![log_out_01](screenshots/log_out_01.png)
 
 **Shows the modal with the enlarged image of a product.**
 
-![galeria_03](screenshots/galeria_03.png)
+![gallery_03](screenshots/gallery_03.png)
+
+**Shows the modal with the enlarged image of another product.**
+
+![gallery_04](screenshots/gallery_04.png)
 
 **Shows in phpMyAdmin the SELECT query on the Products table.**
 
-![base_de_datos_01](screenshots/base_de_datos_01.png)
+![data_base_01](screenshots/data_base_01.png)
 
 **Shows in phpMyAdmin the rows (products) of the Products table.**
 
-![base_de_datos_02](screenshots/base_de_datos_02.png)
+![data_base_02](screenshots/data_base_02.png)
 
 **Screenshot of the inquiry form, which collects the customer's name, phone, email and inquiry detail.**
 
-![consulta_01](screenshots/consulta_01.png)
+![inquiry_01](screenshots/inquiry_01.png)
 
 **Screenshot of the shopping cart content summary, detailing the items to be paid.**
 
-![finalizar_compra_01](screenshots/finalizar_compra_01.png)
+![checkout_01](screenshots/checkout_01.png)
 
 **Screenshot of the checkout process, showing the total amount.**
 
-![finalizar_compra_02](screenshots/finalizar_compra_02.png)
+![checkout_02](screenshots/checkout_02.png)
 
 **Screenshot of the error handling example, with the message shown to the user when an inventory query fails.**
 
-![manejo_de_errores_01](screenshots/manejo_de_errores_01.png)
+![error_handling_01](screenshots/error_handling_01.png)
 
 **Screenshot of the PHP error log, viewed with the `tail -f` command.**
 
