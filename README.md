@@ -99,7 +99,7 @@ virtual_store/
 │   └── icons8-shopping-cart-48.png  # Cart icon in the top bar
 └── screenshots/         # Site and phpMyAdmin screenshots
     ├── gallery_01.png            # Main store page
-    ├── gallery_02.png            # Gallery with 5 products in the cart
+    ├── gallery_02.png            # Gallery with 8 products in the cart
     ├── gallery_03.png            # Modal with the enlarged product image
     ├── gallery_04.png            # Modal with another enlarged product image
     ├── log_out_01.png            # Notice shown when logging out
@@ -523,7 +523,7 @@ Other applied practices:
 
 ![gallery_01](screenshots/gallery_01.png)
 
-**Shows the same main page, but with 5 products added to the shopping cart.**
+**Shows the same main page, but with 8 products added to the shopping cart.**
 
 ![gallery_02](screenshots/gallery_02.png)
 
