@@ -3,11 +3,14 @@
    Complements Bootstrap 5.
    ============================================================ */
 
-/* Fixed height for photos and centered crop */
+/* Responsive product photos, centered without cropping */
 .img-producto {
-    height: 260px;     /* Same height for all photos */
-    object-fit: cover;  /* Crops centered without distorting the image */
-    cursor: pointer;   /* Changes the cursor to indicate click */
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    object-position: center;
+    cursor: pointer;
 }
 
 /* Elevation effect when hovering over a card */

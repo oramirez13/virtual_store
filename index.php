@@ -55,33 +55,34 @@ if(isset($_SESSION['flash'])){
 
   <body>
     <!-- Top bar; "top" is the destination of the "back to top" button -->
-    <nav id="top" class="navbar navbar-dark bg-dark mb-4">
-      <!-- Bootstrap flex: brand on the left, links on the right -->
-      <div class="container d-flex justify-content-between align-items-center">
+    <nav id="top" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+      <div class="container">
         <span class="navbar-brand mb-0 h1">UNIX T-Shirts Virtual Store</span>
-        <div>
-        <?php if($quantity > 0){ ?>
-          <!-- Cart link with the item counter -->
-          <a href="cart.php" class="text-white text-decoration-none">
-            <img src="img/icons8-shopping-cart-48.png" alt="Cart" style="width: 22px;" class="me-1">
-            Cart (<?php echo $quantity; ?>)
-          </a>
-        <?php } else { ?>
-          <!-- Cart link without counter when there are no items -->
-          <a href="cart.php" class="text-white text-decoration-none">
-            <img src="img/icons8-shopping-cart-48.png" alt="Cart" style="width: 22px;" class="me-1">
-            Cart
-          </a>
-        <?php } ?>
-          <!-- Ends the whole session: deletes the cookie and the
-               data stored on the server -->
-          <a href="inquiry.php" class="text-white text-decoration-none ms-3">Inquiries</a>
-          <!-- Error handling examples by season: each button queries
-               an inventory whose access fails and shows an error
-               message to the user -->
-          <a href="error_example.php?season=summer" class="text-white text-decoration-none ms-3">Summer</a>
-          <a href="error_example.php?season=winter" class="text-white text-decoration-none ms-3">Winter</a>
-          <a href="logout.php" class="text-white text-decoration-none ms-3">Log out</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#storeNavbar" aria-controls="storeNavbar"
+                aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="storeNavbar">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <?php if($quantity > 0){ ?>
+                <a href="cart.php" class="nav-link">
+                  <img src="img/icons8-shopping-cart-48.png" alt="" style="width: 22px;" class="me-1">
+                  Cart (<?php echo $quantity; ?>)
+                </a>
+              <?php } else { ?>
+                <a href="cart.php" class="nav-link">
+                  <img src="img/icons8-shopping-cart-48.png" alt="" style="width: 22px;" class="me-1">
+                  Cart
+                </a>
+              <?php } ?>
+            </li>
+            <li class="nav-item"><a href="inquiry.php" class="nav-link">Inquiries</a></li>
+            <li class="nav-item"><a href="error_example.php?season=summer" class="nav-link">Summer</a></li>
+            <li class="nav-item"><a href="error_example.php?season=winter" class="nav-link">Winter</a></li>
+            <li class="nav-item"><a href="logout.php" class="nav-link">Log out</a></li>
+          </ul>
         </div>
       </div>
     </nav>
